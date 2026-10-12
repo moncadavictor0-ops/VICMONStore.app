@@ -20,6 +20,29 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     </script>
 
+    <!-- MODAL TÉRMINOS Y CONDICIONES (PRIMER INGRESO CLIENTE) -->
+    <div id="modal-terms" class="hidden fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-amber-400 max-w-lg w-full rounded-3xl p-6 space-y-4 text-xs">
+            <div class="text-center space-y-1">
+                <i class="fa-solid fa-scale-balanced text-amber-400 text-3xl"></i>
+                <h3 class="text-lg font-black text-white uppercase">Términos y Condiciones Legales</h3>
+                <p class="text-zinc-400">VICMON Store - Compromiso de Pago</p>
+            </div>
+            <div class="bg-black p-4 rounded-xl border border-zinc-800 space-y-3 max-h-60 overflow-y-auto text-zinc-300">
+                <p><b>1. Reconocimiento de Deuda:</b> El usuario declara y acepta expresamente la obligación de pago del crédito otorgado por VICMON Store en las fechas estipuladas en su cronograma.</p>
+                <p><b>2. Intereses por Mora:</b> Se aplicará un recargo administrativo fijo de <b>$5.00 USD</b> a toda cuota que presente un retraso igual o superior a cuatro (4) días continuos desde su fecha de vencimiento.</p>
+                <p><b>3. Validez Legal e Incumplimiento:</b> El presente documento digital constituye un acuerdo legal vinculante. En caso de mora prolongada o negativa de pago, VICMON Store se reserva el derecho de iniciar las acciones legales y denuncias correspondientes ante las autoridades competentes por incumplimiento de contrato.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" id="chk-accept-terms" class="accent-amber-400 w-4 h-4 rounded cursor-pointer">
+                <label for="chk-accept-terms" class="text-[11px] font-bold text-white cursor-pointer">Acepto libremente los términos y asumo la responsabilidad de la deuda.</label>
+            </div>
+            <button onclick="confirmarTerminos()" class="w-full bg-amber-400 hover:bg-amber-300 text-black font-black py-3 rounded-xl uppercase transition cursor-pointer">
+                Aceptar y Continuar
+            </button>
+        </div>
+    </div>
+
     <!-- 1. PANTALLA DE LOGIN -->
     <div id="screen-login" class="flex-1 flex items-center justify-center p-4">
         <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8 shadow-2xl border border-amber-400/20 space-y-6">
@@ -44,4 +67,563 @@
             <form onsubmit="procesarLogin(event)" class="space-y-4">
                 <div id="field-doc">
                     <label class="block text-xs font-bold text-amber-400 mb-1">Cédula / Documento</label>
-                    <input type="text" id="login-doc" placeholder="Ej: V-1
+                    <input type="text" id="login-doc" placeholder="Ej: V-19283746" class="w-full bg-black border border-zinc-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-amber-400">
+                </div>
+
+                <div id="field-email" class="hidden">
+                    <label class="block text-xs font-bold text-amber-400 mb-1">Correo de Administrador</label>
+                    <input type="email" id="login-email" placeholder="admin@vicmon.com" class="w-full bg-black border border-zinc-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-amber-400">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-amber-400 mb-1">Contraseña</label>
+                    <input type="password" id="login-pass" required placeholder="••••••••" class="w-full bg-black border border-zinc-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-amber-400">
+                </div>
+
+                <button type="submit" class="w-full bg-amber-400 hover:bg-amber-300 text-black font-black py-3 rounded-xl text-xs transition shadow-lg flex justify-center items-center gap-2 uppercase cursor-pointer">
+                    Iniciar Sesión
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. APLICACIÓN PRINCIPAL -->
+    <div id="screen-app" class="hidden flex-1 flex flex-col">
+        <header class="bg-amber-400 text-black shadow-lg sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-black text-amber-400 flex items-center justify-center font-black text-lg">
+                        VS
+                    </div>
+                    <div>
+                        <h1 class="font-black text-sm uppercase">VICMON Store</h1>
+                        <p id="user-badge-role" class="text-[10px] font-bold text-zinc-900">Cargando...</p>
+                    </div>
+                </div>
+
+                <button onclick="cerrarSesion()" class="bg-black hover:bg-zinc-800 text-amber-400 text-xs px-3.5 py-1.5 rounded-xl font-extrabold transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-right-from-bracket"></i> Salir
+                </button>
+            </div>
+        </header>
+
+        <!-- PANEL ADMIN -->
+        <main id="view-admin" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
+            <!-- Métricas -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+                    <p class="text-xs font-bold text-zinc-400 uppercase">Por Cobrar</p>
+                    <h3 id="stat-por-cobrar" class="text-2xl font-black text-amber-400 mt-1">$0.00</h3>
+                </div>
+                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+                    <p class="text-xs font-bold text-zinc-400 uppercase">Recaudado</p>
+                    <h3 id="stat-recaudado" class="text-2xl font-black text-white mt-1">$0.00</h3>
+                </div>
+                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+                    <p class="text-xs font-bold text-zinc-400 uppercase">Clientes</p>
+                    <h3 id="stat-clientes" class="text-2xl font-black text-amber-400 mt-1">0</h3>
+                </div>
+                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+                    <p class="text-xs font-bold text-zinc-400 uppercase">Cuotas Pendientes</p>
+                    <h3 id="stat-pendientes" class="text-2xl font-black text-white mt-1">0</h3>
+                </div>
+            </div>
+
+            <!-- Tabla de Clientes con Edición y Eliminar -->
+            <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 space-y-4">
+                <h3 class="text-sm font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-users text-amber-400"></i> Clientes Registrados & Niveles
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-zinc-300">
+                        <thead>
+                            <tr class="bg-black text-amber-400 font-bold border-b border-zinc-800">
+                                <th class="p-3">Cliente</th>
+                                <th class="p-3">Documento</th>
+                                <th class="p-3">Teléfono</th>
+                                <th class="p-3">Nivel</th>
+                                <th class="p-3">Compras</th>
+                                <th class="p-3 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-clientes-body" class="divide-y divide-zinc-800"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Formulario Registrar / Editar Cliente -->
+            <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+                <h3 id="form-cli-title" class="text-sm font-black text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-amber-400"></i> Registrar Cliente Nuevo
+                </h3>
+                <form onsubmit="guardarClienteSupabase(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <input type="hidden" id="edit-cli-id">
+                    <input type="text" id="cli-nombre" placeholder="Nombre completo" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    <input type="text" id="cli-doc" placeholder="Cédula / Documento" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    <input type="text" id="cli-tel" placeholder="Teléfono WhatsApp" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    <input type="number" id="cli-limite" placeholder="Límite $" value="200" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    <input type="text" id="cli-pass" placeholder="Clave de acceso" value="1234" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    <div class="md:col-span-5 flex justify-end gap-2">
+                        <button type="button" id="btn-cancel-edit" onclick="cancelarEdicionCliente()" class="hidden bg-zinc-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl">Cancelar</button>
+                        <button type="submit" id="btn-save-cli" class="bg-amber-400 hover:bg-amber-300 text-black text-xs font-black px-5 py-2.5 rounded-xl transition cursor-pointer">
+                            Guardar Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Emitir Crédito -->
+            <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+                <h3 class="text-sm font-black text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-cart-plus text-amber-400"></i> Emitir Crédito / Venta
+                </h3>
+                <form onsubmit="crearCreditoSupabase(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <select id="cred-cliente" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400"></select>
+                    <input type="text" id="cred-desc" placeholder="Descripción producto/combo" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    <input type="number" step="0.01" id="cred-total" placeholder="Monto Total ($)" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    
+                    <div>
+                        <label class="block text-[10px] font-bold text-amber-400 mb-1">Porcentaje de Inicial ($)</label>
+                        <select id="cred-inicial-pct" class="w-full bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                            <option value="10">10% de Inicial</option>
+                            <option value="20" selected>20% de Inicial</option>
+                            <option value="30">30% de Inicial</option>
+                            <option value="50">50% de Inicial</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-amber-400 mb-1">Número de Cuotas</label>
+                        <input type="number" min="1" id="cred-ncuotas" value="4" required class="w-full bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-amber-400 mb-1">Frecuencia de Pago</label>
+                        <select id="cred-frecuencia" class="w-full bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                            <option value="7">Semanal (7 días)</option>
+                            <option value="15">Quincenal (15 días)</option>
+                            <option value="30">Mensual (30 días)</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-3 flex justify-end">
+                        <button type="submit" class="bg-amber-400 hover:bg-amber-300 text-black text-xs font-black px-5 py-2.5 rounded-xl transition cursor-pointer">
+                            Aprobar y Generar Crédito
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla de Cuotas y Recordatorios WhatsApp -->
+            <div class="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
+                <div class="p-4 border-b border-zinc-800 font-black text-xs text-amber-400 uppercase">
+                    Cronograma de Pagos, Multas & Notificaciones WhatsApp
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-zinc-300">
+                        <thead>
+                            <tr class="bg-black text-white font-bold border-b border-zinc-800">
+                                <th class="p-3">Cliente</th>
+                                <th class="p-3">Concepto</th>
+                                <th class="p-3">Monto Base</th>
+                                <th class="p-3">Mora ($5)</th>
+                                <th class="p-3">Total Due</th>
+                                <th class="p-3">Estado / Ref</th>
+                                <th class="p-3 text-right">Notificar / Cobrar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-cuotas-body" class="divide-y divide-zinc-800"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Seguridades Admin -->
+            <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+                <h3 class="text-sm font-black text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-amber-400"></i> Seguridades de Cuenta Admin
+                </h3>
+                <form onsubmit="cambiarPassAdmin(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input type="password" id="admin-old-pass" placeholder="Contraseña actual" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    <input type="password" id="admin-new-pass" placeholder="Nueva contraseña" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    <button type="submit" class="bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-amber-400/30 text-xs font-bold px-5 py-2 rounded-xl transition cursor-pointer">
+                        Cambiar Clave
+                    </button>
+                </form>
+            </div>
+        </main>
+
+        <!-- PORTAL CLIENTE -->
+        <main id="view-cliente" class="hidden flex-1 max-w-md w-full mx-auto px-4 py-6 space-y-4">
+            <div class="bg-zinc-900 text-white rounded-3xl p-6 border border-amber-400/30 shadow-2xl relative">
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-[10px] text-amber-400 font-extrabold uppercase">Mi Deuda Total</p>
+                    <span id="cli-badge-level" class="px-2.5 py-1 rounded-full bg-amber-400 text-black text-[10px] font-black uppercase">Nivel 1</span>
+                </div>
+                <h2 id="cli-deuda-monto" class="text-4xl font-black my-2 text-amber-400">$0.00</h2>
+                
+                <div class="mt-4 pt-3 border-t border-zinc-800 space-y-1">
+                    <div class="flex justify-between text-[10px] font-bold">
+                        <span class="text-zinc-400">Compras Acumuladas:</span>
+                        <span id="cli-compras-total" class="text-white">$0.00</span>
+                    </div>
+                    <p id="cli-level-next-info" class="text-[10px] text-zinc-400">Faltan $100.00 para Nivel 2</p>
+                </div>
+            </div>
+
+            <div id="cli-cuotas-list" class="space-y-3"></div>
+        </main>
+    </div>
+
+    <script>
+        let currentRole = 'cliente';
+        let clienteLogueado = null;
+        let listaClientes = [];
+
+        function getAdminPass() {
+            return localStorage.getItem('vicmon_admin_pass') || '1234';
+        }
+
+        // ESQUEMA DE NIVELES: Nivel 2 ($100), Nivel 3 ($200), Nivel 4 ($300), Nivel 5 ($400)
+        function calcularNivelCliente(montoTotalCompras) {
+            if (montoTotalCompras >= 400) return { nivel: 5, nombre: 'Nivel 5 (Élite)', siguiente: 'Máximo nivel alcanzado' };
+            if (montoTotalCompras >= 300) return { nivel: 4, nombre: 'Nivel 4 (Oro)', siguiente: `Faltan $${(400 - montoTotalCompras).toFixed(2)} para Nivel 5` };
+            if (montoTotalCompras >= 200) return { nivel: 3, nombre: 'Nivel 3 (Plata)', siguiente: `Faltan $${(300 - montoTotalCompras).toFixed(2)} para Nivel 4` };
+            if (montoTotalCompras >= 100) return { nivel: 2, nombre: 'Nivel 2 (Bronce)', siguiente: `Faltan $${(200 - montoTotalCompras).toFixed(2)} para Nivel 3` };
+            return { nivel: 1, nombre: 'Nivel 1 (Básico)', siguiente: `Faltan $${(100 - montoTotalCompras).toFixed(2)} para Nivel 2` };
+        }
+
+        function setLoginRole(role) {
+            currentRole = role;
+            const btnCli = document.getElementById('tab-login-cli');
+            const btnAdm = document.getElementById('tab-login-adm');
+            const fieldDoc = document.getElementById('field-doc');
+            const fieldEmail = document.getElementById('field-email');
+
+            if (role === 'cliente') {
+                btnCli.className = "py-2.5 rounded-xl bg-amber-400 text-black font-black shadow transition-all cursor-pointer";
+                btnAdm.className = "py-2.5 rounded-lg text-zinc-400 hover:text-amber-400 transition-all cursor-pointer font-bold";
+                fieldDoc.classList.remove('hidden');
+                fieldEmail.classList.add('hidden');
+            } else {
+                btnAdm.className = "py-2.5 rounded-xl bg-amber-400 text-black font-black shadow transition-all cursor-pointer";
+                btnCli.className = "py-2.5 rounded-lg text-zinc-400 hover:text-amber-400 transition-all cursor-pointer font-bold";
+                fieldEmail.classList.remove('hidden');
+                fieldDoc.classList.add('hidden');
+            }
+        }
+
+        async function procesarLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('login-pass').value;
+
+            if (currentRole === 'admin') {
+                const email = document.getElementById('login-email').value;
+                if (email === 'admin@vicmon.com' && pass === getAdminPass()) {
+                    iniciarAppAdmin();
+                } else {
+                    alert('Credenciales de administrador incorrectas.');
+                }
+            } else {
+                const doc = document.getElementById('login-doc').value;
+                const { data, error } = await _supabase.from('clientes').select('*').eq('documento', doc).eq('password', pass).single();
+
+                if (error || !data) {
+                    alert('Cédula o contraseña no válidas.');
+                } else {
+                    clienteLogueado = data;
+                    if (!data.terms_accepted) {
+                        document.getElementById('modal-terms').classList.remove('hidden');
+                    } else {
+                        iniciarAppCliente();
+                    }
+                }
+            }
+        }
+
+        async function confirmarTerminos() {
+            const chk = document.getElementById('chk-accept-terms');
+            if (!chk.checked) return alert('Debes marcar la casilla para aceptar los Términos y Condiciones.');
+
+            await _supabase.from('clientes').update({ terms_accepted: true }).eq('id', clienteLogueado.id);
+            document.getElementById('modal-terms').classList.add('hidden');
+            iniciarAppCliente();
+        }
+
+        function iniciarAppAdmin() {
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('screen-app').classList.remove('hidden');
+            document.getElementById('user-badge-role').innerText = 'Panel de Administración';
+            document.getElementById('view-admin').classList.remove('hidden');
+            document.getElementById('view-cliente').classList.add('hidden');
+            cargarDatosAdmin();
+        }
+
+        function iniciarAppCliente() {
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('screen-app').classList.remove('hidden');
+            document.getElementById('user-badge-role').innerText = `Cliente: ${clienteLogueado.nombre}`;
+            document.getElementById('view-cliente').classList.remove('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+            cargarDatosCliente();
+        }
+
+        function cerrarSesion() {
+            document.getElementById('screen-app').classList.add('hidden');
+            document.getElementById('screen-login').classList.remove('hidden');
+            document.getElementById('login-pass').value = '';
+            clienteLogueado = null;
+        }
+
+        async function cargarDatosAdmin() {
+            const { data: clientes } = await _supabase.from('clientes').select('*');
+            const { data: creditos } = await _supabase.from('creditos').select('*');
+            const { data: cuotas } = await _supabase.from('cuotas').select('*, clientes(*)');
+
+            listaClientes = clientes || [];
+            document.getElementById('stat-clientes').innerText = listaClientes.length;
+
+            const tbodyClientes = document.getElementById('tabla-clientes-body');
+            const selectClienteCred = document.getElementById('cred-cliente');
+
+            selectClienteCred.innerHTML = listaClientes.map(c => `<option value="${c.id}">${c.nombre} (${c.documento})</option>`).join('');
+
+            tbodyClientes.innerHTML = listaClientes.map(c => {
+                const totalCompras = (creditos || []).filter(cr => cr.cliente_id === c.id).reduce((sum, cr) => sum + parseFloat(cr.monto_total), 0);
+                const infoNivel = calcularNivelCliente(totalCompras);
+
+                return `
+                    <tr class="border-b border-zinc-800 hover:bg-zinc-800/50">
+                        <td class="p-3 font-bold text-white">${c.nombre}</td>
+                        <td class="p-3">${c.documento}</td>
+                        <td class="p-3">${c.telefono}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-400 text-black">${infoNivel.nombre}</span></td>
+                        <td class="p-3 font-bold text-amber-400">$${totalCompras.toFixed(2)}</td>
+                        <td class="p-3 text-right space-x-1">
+                            <button onclick="prepararEdicionCliente('${c.id}', '${c.nombre}', '${c.documento}', '${c.telefono}', '${c.limite_credito}', '${c.password}')" class="bg-amber-400/20 text-amber-400 hover:bg-amber-400 hover:text-black px-2 py-1 rounded text-[10px] font-bold">Editar</button>
+                            <button onclick="eliminarClienteSupabase('${c.id}', '${c.nombre}')" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white px-2 py-1 rounded text-[10px] font-bold">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            let porCobrar = 0, recaudado = 0, pendientes = 0;
+            const tbodyCuotas = document.getElementById('tabla-cuotas-body');
+            const hoy = new Date();
+
+            tbodyCuotas.innerHTML = (cuotas || []).map(c => {
+                const fechaVenc = new Date(c.vencimiento);
+                const diasDiferencia = Math.floor((hoy - fechaVenc) / (1000 * 60 * 60 * 24));
+                
+                // MULTA DE $5 TRAS 4 DÍAS DE RETRASO
+                let mora = 0;
+                if (c.estado === 'Pendiente' && diasDiferencia >= 4) {
+                    mora = 5.00;
+                }
+
+                const montoTotalCuota = parseFloat(c.monto) + mora;
+
+                if (c.estado === 'Pendiente' || c.estado === 'En Revisión') {
+                    porCobrar += montoTotalCuota;
+                    pendientes++;
+                } else {
+                    recaudado += parseFloat(c.monto);
+                }
+
+                const esInicial = c.numero === 0;
+                const clienteTel = c.clientes ? c.clientes.telefono : '';
+
+                return `
+                    <tr class="border-b border-zinc-800 hover:bg-zinc-800/50">
+                        <td class="p-3 font-bold text-white">${c.clientes ? c.clientes.nombre : 'N/A'}</td>
+                        <td class="p-3 font-extrabold ${esInicial ? 'text-amber-400' : 'text-zinc-400'}">${esInicial ? '⚡ INICIAL' : `Cuota #${c.numero}`}</td>
+                        <td class="p-3 font-bold">$${parseFloat(c.monto).toFixed(2)}</td>
+                        <td class="p-3 text-red-400 font-bold">${mora > 0 ? `+$${mora.toFixed(2)}` : '$0.00'}</td>
+                        <td class="p-3 font-black text-amber-400">$${montoTotalCuota.toFixed(2)}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.estado === 'Pagado' ? 'bg-emerald-500/20 text-emerald-400' : (c.estado === 'En Revisión' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-400/20 text-amber-400')}">
+                                ${c.estado} ${c.referencia ? `(Ref: ${c.referencia})` : ''}
+                            </span>
+                        </td>
+                        <td class="p-3 text-right space-x-1">
+                            <!-- NOTIFICACIONES WHATSAPP -->
+                            <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', 'hoy')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio Hoy">Hoy</button>
+                            <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', '10d')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio 10 días">10d</button>
+                            <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', '12d')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio 12 días">12d</button>
+                            <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', '14d')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio 14 días">14d</button>
+                            
+                            <!-- APROBAR / MARCAR PAGO -->
+                            ${c.estado !== 'Pagado' ? `<button onclick="adminAprobarPago('${c.id}')" class="bg-amber-400 text-black px-2 py-1 rounded text-[10px] font-black">Aprobar</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('stat-por-cobrar').innerText = `$${porCobrar.toFixed(2)}`;
+            document.getElementById('stat-recaudado').innerText = `$${recaudado.toFixed(2)}`;
+            document.getElementById('stat-pendientes').innerText = pendientes;
+        }
+
+        function enviarWspNotif(tel, nombre, monto, fecha, tipo) {
+            let msg = "";
+            if (tipo === 'hoy') msg = `Hola ${nombre}, te recordamos que hoy vence tu cuota por $${monto.toFixed(2)} en VICMON Store. Por favor realiza tu pago para mantener tu buen historial.`;
+            if (tipo === '10d') msg = `Hola ${nombre}, recordatorio de pago: Tu cuota por $${monto.toFixed(2)} vencerá el ${fecha}. ¡Gracias por preferir VICMON Store!`;
+            if (tipo === '12d') msg = `Hola ${nombre}, faltan pocos días para el vencimiento de tu cuota ($${monto.toFixed(2)} el ${fecha}).`;
+            if (tipo === '14d') msg = `Hola ${nombre}, te notificamos el vencimiento próximo de tu crédito de VICMON Store ($${monto.toFixed(2)}).`;
+
+            window.open(`https://wa.me/${tel.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function prepararEdicionCliente(id, nombre, doc, tel, limite, pass) {
+            document.getElementById('edit-cli-id').value = id;
+            document.getElementById('cli-nombre').value = nombre;
+            document.getElementById('cli-doc').value = doc;
+            document.getElementById('cli-tel').value = tel;
+            document.getElementById('cli-limite').value = limite;
+            document.getElementById('cli-pass').value = pass;
+
+            document.getElementById('form-cli-title').innerHTML = '<i class="fa-solid fa-user-pen text-amber-400"></i> Editar Cliente';
+            document.getElementById('btn-save-cli').innerText = 'Actualizar Datos';
+            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+        }
+
+        function cancelarEdicionCliente() {
+            document.getElementById('edit-cli-id').value = '';
+            document.getElementById('cli-nombre').value = '';
+            document.getElementById('cli-doc').value = '';
+            document.getElementById('cli-tel').value = '';
+            document.getElementById('cli-limite').value = '200';
+            document.getElementById('cli-pass').value = '1234';
+
+            document.getElementById('form-cli-title').innerHTML = '<i class="fa-solid fa-user-plus text-amber-400"></i> Registrar Cliente Nuevo';
+            document.getElementById('btn-save-cli').innerText = 'Guardar Cliente';
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+        }
+
+        async function guardarClienteSupabase(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-cli-id').value;
+
+            const datos = {
+                nombre: document.getElementById('cli-nombre').value,
+                documento: document.getElementById('cli-doc').value,
+                telefono: document.getElementById('cli-tel').value,
+                limite_credito: parseFloat(document.getElementById('cli-limite').value),
+                password: document.getElementById('cli-pass').value
+            };
+
+            if (editId) {
+                await _supabase.from('clientes').update(datos).eq('id', editId);
+                alert('¡Cliente actualizado!');
+                cancelarEdicionCliente();
+            } else {
+                await _supabase.from('clientes').insert([datos]);
+                alert('¡Cliente guardado!');
+                e.target.reset();
+            }
+            cargarDatosAdmin();
+        }
+
+        async function eliminarClienteSupabase(clienteId, nombre) {
+            if (confirm(`¿Deseas eliminar a "${nombre}"?`)) {
+                await _supabase.from('clientes').delete().eq('id', clienteId);
+                cargarDatosAdmin();
+            }
+        }
+
+        async function crearCreditoSupabase(e) {
+            e.preventDefault();
+            const clienteId = document.getElementById('cred-cliente').value;
+            const desc = document.getElementById('cred-desc').value;
+            const total = parseFloat(document.getElementById('cred-total').value);
+            const pctInicial = parseFloat(document.getElementById('cred-inicial-pct').value);
+            const nCuotas = parseInt(document.getElementById('cred-ncuotas').value);
+            const freq = parseInt(document.getElementById('cred-frecuencia').value);
+
+            const { data: cred } = await _supabase.from('creditos').insert([{
+                cliente_id: clienteId, descripcion: desc, monto_total: total, num_cuotas: nCuotas
+            }]).select().single();
+
+            const montoInicial = (total * pctInicial) / 100;
+            const valorCuotaRestante = (total - montoInicial) / nCuotas;
+            const cuotasArray = [];
+            let fecha = new Date();
+
+            cuotasArray.push({
+                credito_id: cred.id, cliente_id: clienteId, numero: 0, monto: montoInicial, vencimiento: fecha.toISOString().split('T')[0], estado: 'Pendiente'
+            });
+
+            for (let i = 1; i <= nCuotas; i++) {
+                fecha.setDate(fecha.getDate() + freq);
+                cuotasArray.push({
+                    credito_id: cred.id, cliente_id: clienteId, numero: i, monto: valorCuotaRestante, vencimiento: fecha.toISOString().split('T')[0], estado: 'Pendiente'
+                });
+            }
+
+            await _supabase.from('cuotas').insert(cuotasArray);
+            alert('¡Crédito registrado con éxito!');
+            e.target.reset();
+            cargarDatosAdmin();
+        }
+
+        async function adminAprobarPago(cuotaId) {
+            const ref = prompt("Ingresa el número de referencia del pago (o confirma la existente):");
+            if (ref) {
+                await _supabase.from('cuotas').update({ estado: 'Pagado', referencia: ref }).eq('id', cuotaId);
+                cargarDatosAdmin();
+            }
+        }
+
+        async function clienteReportarPago(cuotaId) {
+            const ref = prompt("Ingresa el número de referencia de tu transferencia/pago:");
+            if (ref) {
+                await _supabase.from('cuotas').update({ estado: 'En Revisión', referencia: ref }).eq('id', cuotaId);
+                alert("¡Pago reportado! Estará 'En Revisión' hasta que la tienda lo apruebe.");
+                cargarDatosCliente();
+            }
+        }
+
+        async function cargarDatosCliente() {
+            const { data: cuotas } = await _supabase.from('cuotas').select('*').eq('cliente_id', clienteLogueado.id);
+            const { data: creditos } = await _supabase.from('creditos').select('*').eq('cliente_id', clienteLogueado.id);
+
+            const totalCompras = (creditos || []).reduce((sum, cr) => sum + parseFloat(cr.monto_total), 0);
+            const infoNivel = calcularNivelCliente(totalCompras);
+
+            document.getElementById('cli-badge-level').innerText = infoNivel.nombre;
+            document.getElementById('cli-compras-total').innerText = `$${totalCompras.toFixed(2)}`;
+            document.getElementById('cli-level-next-info').innerText = infoNivel.siguiente;
+
+            let deuda = 0;
+            const container = document.getElementById('cli-cuotas-list');
+            const hoy = new Date();
+
+            container.innerHTML = (cuotas || []).map(c => {
+                const fechaVenc = new Date(c.vencimiento);
+                const diasDiferencia = Math.floor((hoy - fechaVenc) / (1000 * 60 * 60 * 24));
+                let mora = (c.estado === 'Pendiente' && diasDiferencia >= 4) ? 5.00 : 0;
+                const totalCuota = parseFloat(c.monto) + mora;
+
+                if (c.estado === 'Pendiente' || c.estado === 'En Revisión') deuda += totalCuota;
+                const esInicial = c.numero === 0;
+
+                return `
+                    <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-black ${esInicial ? 'text-amber-400' : 'text-white'}">${esInicial ? '⚡ Pago Inicial' : `Cuota #${c.numero}`}</p>
+                            <p class="text-zinc-400 text-[11px]">Vence: ${c.vencimiento}</p>
+                            ${mora > 0 ? '<p class="text-red-400 font-bold text-[10px]">+ $5.00 mora aplicada</p>' : ''}
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-amber-400 text-sm">$${totalCuota.toFixed(2)}</p>
+                            <span class="text-[10px] font-bold block mb-1 ${c.estado === 'Pagado' ? 'text-emerald-400' : (c.estado === 'En Revisión' ? 'text-blue-400' : 'text-amber-400')}">${c.estado}</span>
+                            ${c.estado === 'Pendiente' ? `<button onclick="clienteReportarPago('${c.id}')" class="bg-amber-400 text-black px-2 py-0.5 rounded font-bold text-[10px]">Reportar Pago</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cli-deuda-monto').innerText = `$${deuda.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
