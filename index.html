@@ -43,14 +43,14 @@
         </div>
     </div>
 
-    <!-- 1. PANTALLA DE LOGIN -->
+    <!-- 1. PANTALLA DE LOGIN CON LOGO OFICIAL -->
     <div id="screen-login" class="flex-1 flex items-center justify-center p-4">
         <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8 shadow-2xl border border-amber-400/20 space-y-6">
-            <div class="text-center space-y-2">
-                <div class="w-16 h-16 bg-amber-400 text-black rounded-2xl flex items-center justify-center font-black text-2xl mx-auto shadow-lg shadow-amber-400/10">
-                    VS
+            <div class="text-center space-y-3">
+                <!-- LOGO INTEGRADO -->
+                <div class="flex justify-center">
+                    <img src="LOGO VICMON .jpg" alt="VICMON Store Logo" class="h-20 object-contain drop-shadow-md" onerror="this.onerror=null; this.src='logo.png';">
                 </div>
-                <h1 class="text-2xl font-black text-white">VICMON Store</h1>
                 <p class="text-xs text-amber-400 font-semibold tracking-wider uppercase">Créditos & Financiamiento</p>
             </div>
 
@@ -90,14 +90,13 @@
     <!-- 2. APLICACIÓN PRINCIPAL -->
     <div id="screen-app" class="hidden flex-1 flex flex-col">
         <header class="bg-amber-400 text-black shadow-lg sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="max-w-7xl mx-auto px-4 py-2.5 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-black text-amber-400 flex items-center justify-center font-black text-lg">
-                        VS
-                    </div>
+                    <!-- LOGO HEADER -->
+                    <img src="LOGO VICMON .jpg" alt="VICMON Store" class="h-9 object-contain bg-black px-2 py-1 rounded-xl border border-black" onerror="this.onerror=null; this.src='logo.png';">
                     <div>
-                        <h1 class="font-black text-sm uppercase">VICMON Store</h1>
-                        <p id="user-badge-role" class="text-[10px] font-bold text-zinc-900">Cargando...</p>
+                        <h1 class="font-black text-sm uppercase leading-none">VICMON Store</h1>
+                        <p id="user-badge-role" class="text-[10px] font-bold text-zinc-900 mt-0.5">Cargando...</p>
                     </div>
                 </div>
 
@@ -129,7 +128,7 @@
                 </div>
             </div>
 
-            <!-- Tabla de Clientes con Edición y Eliminar -->
+            <!-- Tabla de Clientes -->
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 space-y-4">
                 <h3 class="text-sm font-black text-white flex items-center gap-2">
                     <i class="fa-solid fa-users text-amber-400"></i> Clientes Registrados & Niveles
@@ -139,8 +138,9 @@
                         <thead>
                             <tr class="bg-black text-amber-400 font-bold border-b border-zinc-800">
                                 <th class="p-3">Cliente</th>
-                                <th class="p-3">Documento</th>
+                                <th class="p-3">Cédula / RIF</th>
                                 <th class="p-3">Teléfono</th>
+                                <th class="p-3">Dirección</th>
                                 <th class="p-3">Nivel</th>
                                 <th class="p-3">Compras</th>
                                 <th class="p-3 text-right">Acciones</th>
@@ -156,14 +156,18 @@
                 <h3 id="form-cli-title" class="text-sm font-black text-white mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-user-plus text-amber-400"></i> Registrar Cliente Nuevo
                 </h3>
-                <form onsubmit="guardarClienteSupabase(event)" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <form onsubmit="guardarClienteSupabase(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
                     <input type="hidden" id="edit-cli-id">
                     <input type="text" id="cli-nombre" placeholder="Nombre completo" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
-                    <input type="text" id="cli-doc" placeholder="Cédula / Documento" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    <input type="text" id="cli-doc" placeholder="Cédula" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    <input type="text" id="cli-rif" placeholder="RIF (Ej: J-12345678-0)" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
                     <input type="text" id="cli-tel" placeholder="Teléfono WhatsApp" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
+                    
+                    <input type="text" id="cli-direccion" placeholder="Dirección de Domicilio" required class="md:col-span-2 bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
                     <input type="number" id="cli-limite" placeholder="Límite $" value="200" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
                     <input type="text" id="cli-pass" placeholder="Clave de acceso" value="1234" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
-                    <div class="md:col-span-5 flex justify-end gap-2">
+                    
+                    <div class="md:col-span-4 flex justify-end gap-2 mt-2">
                         <button type="button" id="btn-cancel-edit" onclick="cancelarEdicionCliente()" class="hidden bg-zinc-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl">Cancelar</button>
                         <button type="submit" id="btn-save-cli" class="bg-amber-400 hover:bg-amber-300 text-black text-xs font-black px-5 py-2.5 rounded-xl transition cursor-pointer">
                             Guardar Cliente
@@ -214,7 +218,7 @@
                 </form>
             </div>
 
-            <!-- Tabla de Cuotas y Recordatorios WhatsApp -->
+            <!-- Tabla de Cuotas -->
             <div class="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
                 <div class="p-4 border-b border-zinc-800 font-black text-xs text-amber-400 uppercase">
                     Cronograma de Pagos, Multas & Notificaciones WhatsApp
@@ -283,7 +287,6 @@
             return localStorage.getItem('vicmon_admin_pass') || '1234';
         }
 
-        // ESQUEMA DE NIVELES: Nivel 2 ($100), Nivel 3 ($200), Nivel 4 ($300), Nivel 5 ($400)
         function calcularNivelCliente(montoTotalCompras) {
             if (montoTotalCompras >= 400) return { nivel: 5, nombre: 'Nivel 5 (Élite)', siguiente: 'Máximo nivel alcanzado' };
             if (montoTotalCompras >= 300) return { nivel: 4, nombre: 'Nivel 4 (Oro)', siguiente: `Faltan $${(400 - montoTotalCompras).toFixed(2)} para Nivel 5` };
@@ -394,12 +397,13 @@
                 return `
                     <tr class="border-b border-zinc-800 hover:bg-zinc-800/50">
                         <td class="p-3 font-bold text-white">${c.nombre}</td>
-                        <td class="p-3">${c.documento}</td>
+                        <td class="p-3 font-mono text-zinc-300">${c.documento} <br><span class="text-[10px] text-amber-400">${c.rif || 'Sin RIF'}</span></td>
                         <td class="p-3">${c.telefono}</td>
+                        <td class="p-3 text-[11px] max-w-[150px] truncate" title="${c.direccion || ''}">${c.direccion || 'No registrada'}</td>
                         <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-400 text-black">${infoNivel.nombre}</span></td>
                         <td class="p-3 font-bold text-amber-400">$${totalCompras.toFixed(2)}</td>
                         <td class="p-3 text-right space-x-1">
-                            <button onclick="prepararEdicionCliente('${c.id}', '${c.nombre}', '${c.documento}', '${c.telefono}', '${c.limite_credito}', '${c.password}')" class="bg-amber-400/20 text-amber-400 hover:bg-amber-400 hover:text-black px-2 py-1 rounded text-[10px] font-bold">Editar</button>
+                            <button onclick="prepararEdicionCliente('${c.id}', '${c.nombre}', '${c.documento}', '${c.rif || ''}', '${c.telefono}', '${c.direccion || ''}', '${c.limite_credito}', '${c.password}')" class="bg-amber-400/20 text-amber-400 hover:bg-amber-400 hover:text-black px-2 py-1 rounded text-[10px] font-bold">Editar</button>
                             <button onclick="eliminarClienteSupabase('${c.id}', '${c.nombre}')" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white px-2 py-1 rounded text-[10px] font-bold">Eliminar</button>
                         </td>
                     </tr>
@@ -414,7 +418,6 @@
                 const fechaVenc = new Date(c.vencimiento);
                 const diasDiferencia = Math.floor((hoy - fechaVenc) / (1000 * 60 * 60 * 24));
                 
-                // MULTA DE $5 TRAS 4 DÍAS DE RETRASO
                 let mora = 0;
                 if (c.estado === 'Pendiente' && diasDiferencia >= 4) {
                     mora = 5.00;
@@ -445,13 +448,11 @@
                             </span>
                         </td>
                         <td class="p-3 text-right space-x-1">
-                            <!-- NOTIFICACIONES WHATSAPP -->
                             <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', 'hoy')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio Hoy">Hoy</button>
                             <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', '10d')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio 10 días">10d</button>
                             <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', '12d')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio 12 días">12d</button>
                             <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', '14d')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio 14 días">14d</button>
                             
-                            <!-- APROBAR / MARCAR PAGO -->
                             ${c.estado !== 'Pagado' ? `<button onclick="adminAprobarPago('${c.id}')" class="bg-amber-400 text-black px-2 py-1 rounded text-[10px] font-black">Aprobar</button>` : ''}
                         </td>
                     </tr>
@@ -473,11 +474,13 @@
             window.open(`https://wa.me/${tel.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        function prepararEdicionCliente(id, nombre, doc, tel, limite, pass) {
+        function prepararEdicionCliente(id, nombre, doc, rif, tel, direccion, limite, pass) {
             document.getElementById('edit-cli-id').value = id;
             document.getElementById('cli-nombre').value = nombre;
             document.getElementById('cli-doc').value = doc;
+            document.getElementById('cli-rif').value = rif;
             document.getElementById('cli-tel').value = tel;
+            document.getElementById('cli-direccion').value = direccion;
             document.getElementById('cli-limite').value = limite;
             document.getElementById('cli-pass').value = pass;
 
@@ -490,7 +493,9 @@
             document.getElementById('edit-cli-id').value = '';
             document.getElementById('cli-nombre').value = '';
             document.getElementById('cli-doc').value = '';
+            document.getElementById('cli-rif').value = '';
             document.getElementById('cli-tel').value = '';
+            document.getElementById('cli-direccion').value = '';
             document.getElementById('cli-limite').value = '200';
             document.getElementById('cli-pass').value = '1234';
 
@@ -506,124 +511,4 @@
             const datos = {
                 nombre: document.getElementById('cli-nombre').value,
                 documento: document.getElementById('cli-doc').value,
-                telefono: document.getElementById('cli-tel').value,
-                limite_credito: parseFloat(document.getElementById('cli-limite').value),
-                password: document.getElementById('cli-pass').value
-            };
-
-            if (editId) {
-                await _supabase.from('clientes').update(datos).eq('id', editId);
-                alert('¡Cliente actualizado!');
-                cancelarEdicionCliente();
-            } else {
-                await _supabase.from('clientes').insert([datos]);
-                alert('¡Cliente guardado!');
-                e.target.reset();
-            }
-            cargarDatosAdmin();
-        }
-
-        async function eliminarClienteSupabase(clienteId, nombre) {
-            if (confirm(`¿Deseas eliminar a "${nombre}"?`)) {
-                await _supabase.from('clientes').delete().eq('id', clienteId);
-                cargarDatosAdmin();
-            }
-        }
-
-        async function crearCreditoSupabase(e) {
-            e.preventDefault();
-            const clienteId = document.getElementById('cred-cliente').value;
-            const desc = document.getElementById('cred-desc').value;
-            const total = parseFloat(document.getElementById('cred-total').value);
-            const pctInicial = parseFloat(document.getElementById('cred-inicial-pct').value);
-            const nCuotas = parseInt(document.getElementById('cred-ncuotas').value);
-            const freq = parseInt(document.getElementById('cred-frecuencia').value);
-
-            const { data: cred } = await _supabase.from('creditos').insert([{
-                cliente_id: clienteId, descripcion: desc, monto_total: total, num_cuotas: nCuotas
-            }]).select().single();
-
-            const montoInicial = (total * pctInicial) / 100;
-            const valorCuotaRestante = (total - montoInicial) / nCuotas;
-            const cuotasArray = [];
-            let fecha = new Date();
-
-            cuotasArray.push({
-                credito_id: cred.id, cliente_id: clienteId, numero: 0, monto: montoInicial, vencimiento: fecha.toISOString().split('T')[0], estado: 'Pendiente'
-            });
-
-            for (let i = 1; i <= nCuotas; i++) {
-                fecha.setDate(fecha.getDate() + freq);
-                cuotasArray.push({
-                    credito_id: cred.id, cliente_id: clienteId, numero: i, monto: valorCuotaRestante, vencimiento: fecha.toISOString().split('T')[0], estado: 'Pendiente'
-                });
-            }
-
-            await _supabase.from('cuotas').insert(cuotasArray);
-            alert('¡Crédito registrado con éxito!');
-            e.target.reset();
-            cargarDatosAdmin();
-        }
-
-        async function adminAprobarPago(cuotaId) {
-            const ref = prompt("Ingresa el número de referencia del pago (o confirma la existente):");
-            if (ref) {
-                await _supabase.from('cuotas').update({ estado: 'Pagado', referencia: ref }).eq('id', cuotaId);
-                cargarDatosAdmin();
-            }
-        }
-
-        async function clienteReportarPago(cuotaId) {
-            const ref = prompt("Ingresa el número de referencia de tu transferencia/pago:");
-            if (ref) {
-                await _supabase.from('cuotas').update({ estado: 'En Revisión', referencia: ref }).eq('id', cuotaId);
-                alert("¡Pago reportado! Estará 'En Revisión' hasta que la tienda lo apruebe.");
-                cargarDatosCliente();
-            }
-        }
-
-        async function cargarDatosCliente() {
-            const { data: cuotas } = await _supabase.from('cuotas').select('*').eq('cliente_id', clienteLogueado.id);
-            const { data: creditos } = await _supabase.from('creditos').select('*').eq('cliente_id', clienteLogueado.id);
-
-            const totalCompras = (creditos || []).reduce((sum, cr) => sum + parseFloat(cr.monto_total), 0);
-            const infoNivel = calcularNivelCliente(totalCompras);
-
-            document.getElementById('cli-badge-level').innerText = infoNivel.nombre;
-            document.getElementById('cli-compras-total').innerText = `$${totalCompras.toFixed(2)}`;
-            document.getElementById('cli-level-next-info').innerText = infoNivel.siguiente;
-
-            let deuda = 0;
-            const container = document.getElementById('cli-cuotas-list');
-            const hoy = new Date();
-
-            container.innerHTML = (cuotas || []).map(c => {
-                const fechaVenc = new Date(c.vencimiento);
-                const diasDiferencia = Math.floor((hoy - fechaVenc) / (1000 * 60 * 60 * 24));
-                let mora = (c.estado === 'Pendiente' && diasDiferencia >= 4) ? 5.00 : 0;
-                const totalCuota = parseFloat(c.monto) + mora;
-
-                if (c.estado === 'Pendiente' || c.estado === 'En Revisión') deuda += totalCuota;
-                const esInicial = c.numero === 0;
-
-                return `
-                    <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center text-xs">
-                        <div>
-                            <p class="font-black ${esInicial ? 'text-amber-400' : 'text-white'}">${esInicial ? '⚡ Pago Inicial' : `Cuota #${c.numero}`}</p>
-                            <p class="text-zinc-400 text-[11px]">Vence: ${c.vencimiento}</p>
-                            ${mora > 0 ? '<p class="text-red-400 font-bold text-[10px]">+ $5.00 mora aplicada</p>' : ''}
-                        </div>
-                        <div class="text-right">
-                            <p class="font-black text-amber-400 text-sm">$${totalCuota.toFixed(2)}</p>
-                            <span class="text-[10px] font-bold block mb-1 ${c.estado === 'Pagado' ? 'text-emerald-400' : (c.estado === 'En Revisión' ? 'text-blue-400' : 'text-amber-400')}">${c.estado}</span>
-                            ${c.estado === 'Pendiente' ? `<button onclick="clienteReportarPago('${c.id}')" class="bg-amber-400 text-black px-2 py-0.5 rounded font-bold text-[10px]">Reportar Pago</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('cli-deuda-monto').innerText = `$${deuda.toFixed(2)}`;
-        }
-    </script>
-</body>
-</html>
+                rif: document.getElementById('cli
