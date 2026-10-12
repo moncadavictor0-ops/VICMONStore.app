@@ -43,11 +43,10 @@
         </div>
     </div>
 
-    <!-- 1. PANTALLA DE LOGIN CON LOGO OFICIAL -->
+    <!-- 1. PANTALLA DE LOGIN CON LOGO -->
     <div id="screen-login" class="flex-1 flex items-center justify-center p-4">
         <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8 shadow-2xl border border-amber-400/20 space-y-6">
             <div class="text-center space-y-3">
-                <!-- LOGO INTEGRADO -->
                 <div class="flex justify-center">
                     <img src="LOGO VICMON .jpg" alt="VICMON Store Logo" class="h-20 object-contain drop-shadow-md" onerror="this.onerror=null; this.src='logo.png';">
                 </div>
@@ -92,7 +91,6 @@
         <header class="bg-amber-400 text-black shadow-lg sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 py-2.5 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <!-- LOGO HEADER -->
                     <img src="LOGO VICMON .jpg" alt="VICMON Store" class="h-9 object-contain bg-black px-2 py-1 rounded-xl border border-black" onerror="this.onerror=null; this.src='logo.png';">
                     <div>
                         <h1 class="font-black text-sm uppercase leading-none">VICMON Store</h1>
@@ -108,7 +106,6 @@
 
         <!-- PANEL ADMIN -->
         <main id="view-admin" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
-            <!-- Métricas -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
                     <p class="text-xs font-bold text-zinc-400 uppercase">Por Cobrar</p>
@@ -128,7 +125,7 @@
                 </div>
             </div>
 
-            <!-- Tabla de Clientes -->
+            <!-- Tabla Clientes -->
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 space-y-4">
                 <h3 class="text-sm font-black text-white flex items-center gap-2">
                     <i class="fa-solid fa-users text-amber-400"></i> Clientes Registrados & Niveles
@@ -151,7 +148,7 @@
                 </div>
             </div>
 
-            <!-- Formulario Registrar / Editar Cliente -->
+            <!-- Registrar / Editar Cliente -->
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
                 <h3 id="form-cli-title" class="text-sm font-black text-white mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-user-plus text-amber-400"></i> Registrar Cliente Nuevo
@@ -301,17 +298,23 @@
             const btnAdm = document.getElementById('tab-login-adm');
             const fieldDoc = document.getElementById('field-doc');
             const fieldEmail = document.getElementById('field-email');
+            const docInput = document.getElementById('login-doc');
+            const emailInput = document.getElementById('login-email');
 
             if (role === 'cliente') {
                 btnCli.className = "py-2.5 rounded-xl bg-amber-400 text-black font-black shadow transition-all cursor-pointer";
                 btnAdm.className = "py-2.5 rounded-lg text-zinc-400 hover:text-amber-400 transition-all cursor-pointer font-bold";
                 fieldDoc.classList.remove('hidden');
                 fieldEmail.classList.add('hidden');
+                docInput.required = true;
+                emailInput.required = false;
             } else {
                 btnAdm.className = "py-2.5 rounded-xl bg-amber-400 text-black font-black shadow transition-all cursor-pointer";
                 btnCli.className = "py-2.5 rounded-lg text-zinc-400 hover:text-amber-400 transition-all cursor-pointer font-bold";
                 fieldEmail.classList.remove('hidden');
                 fieldDoc.classList.add('hidden');
+                emailInput.required = true;
+                docInput.required = false;
             }
         }
 
@@ -324,7 +327,7 @@
                 if (email === 'admin@vicmon.com' && pass === getAdminPass()) {
                     iniciarAppAdmin();
                 } else {
-                    alert('Credenciales de administrador incorrectas.');
+                    alert('Credenciales de administrador incorrectas. Verifica el correo o la clave.');
                 }
             } else {
                 const doc = document.getElementById('login-doc').value;
@@ -350,6 +353,26 @@
             await _supabase.from('clientes').update({ terms_accepted: true }).eq('id', clienteLogueado.id);
             document.getElementById('modal-terms').classList.add('hidden');
             iniciarAppCliente();
+        }
+
+        function cambiarPassAdmin(e) {
+            e.preventDefault();
+            const oldPass = document.getElementById('admin-old-pass').value;
+            const newPass = document.getElementById('admin-new-pass').value;
+
+            if (oldPass !== getAdminPass()) {
+                alert('La contraseña actual es incorrecta.');
+                return;
+            }
+
+            if (newPass.length < 4) {
+                alert('La nueva contraseña debe tener al menos 4 caracteres.');
+                return;
+            }
+
+            localStorage.setItem('vicmon_admin_pass', newPass);
+            alert('¡Contraseña de administrador actualizada con éxito!');
+            e.target.reset();
         }
 
         function iniciarAppAdmin() {
@@ -511,4 +534,126 @@
             const datos = {
                 nombre: document.getElementById('cli-nombre').value,
                 documento: document.getElementById('cli-doc').value,
-                rif: document.getElementById('cli
+                rif: document.getElementById('cli-rif').value,
+                telefono: document.getElementById('cli-tel').value,
+                direccion: document.getElementById('cli-direccion').value,
+                limite_credito: parseFloat(document.getElementById('cli-limite').value),
+                password: document.getElementById('cli-pass').value
+            };
+
+            if (editId) {
+                await _supabase.from('clientes').update(datos).eq('id', editId);
+                alert('¡Cliente actualizado con éxito!');
+                cancelarEdicionCliente();
+            } else {
+                await _supabase.from('clientes').insert([datos]);
+                alert('¡Cliente registrado con éxito!');
+                e.target.reset();
+            }
+            cargarDatosAdmin();
+        }
+
+        async function eliminarClienteSupabase(clienteId, nombre) {
+            if (confirm(`¿Deseas eliminar a "${nombre}"?`)) {
+                await _supabase.from('clientes').delete().eq('id', clienteId);
+                cargarDatosAdmin();
+            }
+        }
+
+        async function crearCreditoSupabase(e) {
+            e.preventDefault();
+            const clienteId = document.getElementById('cred-cliente').value;
+            const desc = document.getElementById('cred-desc').value;
+            const total = parseFloat(document.getElementById('cred-total').value);
+            const pctInicial = parseFloat(document.getElementById('cred-inicial-pct').value);
+            const nCuotas = parseInt(document.getElementById('cred-ncuotas').value);
+            const freq = parseInt(document.getElementById('cred-frecuencia').value);
+
+            const { data: cred } = await _supabase.from('creditos').insert([{
+                cliente_id: clienteId, descripcion: desc, monto_total: total, num_cuotas: nCuotas
+            }]).select().single();
+
+            const montoInicial = (total * pctInicial) / 100;
+            const valorCuotaRestante = (total - montoInicial) / nCuotas;
+            const cuotasArray = [];
+            let fecha = new Date();
+
+            cuotasArray.push({
+                credito_id: cred.id, cliente_id: clienteId, numero: 0, monto: montoInicial, vencimiento: fecha.toISOString().split('T')[0], estado: 'Pendiente'
+            });
+
+            for (let i = 1; i <= nCuotas; i++) {
+                fecha.setDate(fecha.getDate() + freq);
+                cuotasArray.push({
+                    credito_id: cred.id, cliente_id: clienteId, numero: i, monto: valorCuotaRestante, vencimiento: fecha.toISOString().split('T')[0], estado: 'Pendiente'
+                });
+            }
+
+            await _supabase.from('cuotas').insert(cuotasArray);
+            alert('¡Crédito registrado con éxito!');
+            e.target.reset();
+            cargarDatosAdmin();
+        }
+
+        async function adminAprobarPago(cuotaId) {
+            const ref = prompt("Ingresa el número de referencia del pago (o confirma la existente):");
+            if (ref) {
+                await _supabase.from('cuotas').update({ estado: 'Pagado', referencia: ref }).eq('id', cuotaId);
+                cargarDatosAdmin();
+            }
+        }
+
+        async function clienteReportarPago(cuotaId) {
+            const ref = prompt("Ingresa el número de referencia de tu transferencia/pago:");
+            if (ref) {
+                await _supabase.from('cuotas').update({ estado: 'En Revisión', referencia: ref }).eq('id', cuotaId);
+                alert("¡Pago reportado! Estará 'En Revisión' hasta que la tienda lo apruebe.");
+                cargarDatosCliente();
+            }
+        }
+
+        async function cargarDatosCliente() {
+            const { data: cuotas } = await _supabase.from('cuotas').select('*').eq('cliente_id', clienteLogueado.id);
+            const { data: creditos } = await _supabase.from('creditos').select('*').eq('cliente_id', clienteLogueado.id);
+
+            const totalCompras = (creditos || []).reduce((sum, cr) => sum + parseFloat(cr.monto_total), 0);
+            const infoNivel = calcularNivelCliente(totalCompras);
+
+            document.getElementById('cli-badge-level').innerText = infoNivel.nombre;
+            document.getElementById('cli-compras-total').innerText = `$${totalCompras.toFixed(2)}`;
+            document.getElementById('cli-level-next-info').innerText = infoNivel.siguiente;
+
+            let deuda = 0;
+            const container = document.getElementById('cli-cuotas-list');
+            const hoy = new Date();
+
+            container.innerHTML = (cuotas || []).map(c => {
+                const fechaVenc = new Date(c.vencimiento);
+                const diasDiferencia = Math.floor((hoy - fechaVenc) / (1000 * 60 * 60 * 24));
+                let mora = (c.estado === 'Pendiente' && diasDiferencia >= 4) ? 5.00 : 0;
+                const totalCuota = parseFloat(c.monto) + mora;
+
+                if (c.estado === 'Pendiente' || c.estado === 'En Revisión') deuda += totalCuota;
+                const esInicial = c.numero === 0;
+
+                return `
+                    <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-black ${esInicial ? 'text-amber-400' : 'text-white'}">${esInicial ? '⚡ Pago Inicial' : `Cuota #${c.numero}`}</p>
+                            <p class="text-zinc-400 text-[11px]">Vence: ${c.vencimiento}</p>
+                            ${mora > 0 ? '<p class="text-red-400 font-bold text-[10px]">+ $5.00 mora aplicada</p>' : ''}
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-amber-400 text-sm">$${totalCuota.toFixed(2)}</p>
+                            <span class="text-[10px] font-bold block mb-1 ${c.estado === 'Pagado' ? 'text-emerald-400' : (c.estado === 'En Revisión' ? 'text-blue-400' : 'text-amber-400')}">${c.estado}</span>
+                            ${c.estado === 'Pendiente' ? `<button onclick="clienteReportarPago('${c.id}')" class="bg-amber-400 text-black px-2 py-0.5 rounded font-bold text-[10px]">Reportar Pago</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cli-deuda-monto').innerText = `$${deuda.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
