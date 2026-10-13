@@ -43,7 +43,23 @@
         </div>
     </div>
 
-    <!-- 1. PANTALLA DE LOGIN CON LOGO -->
+    <!-- MODAL VISUALIZAR COMPROBANTE / SCREENSHOT DE PAGO -->
+    <div id="modal-screenshot" class="hidden fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-amber-400 max-w-md w-full rounded-3xl p-6 space-y-4 text-xs text-center">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-black text-amber-400 uppercase text-sm"><i class="fa-solid fa-receipt mr-1"></i> Comprobante Adjunto</h3>
+                <button onclick="cerrarModalScreenshot()" class="text-zinc-400 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+            <div class="max-h-96 overflow-y-auto bg-black p-2 rounded-xl border border-zinc-800 flex justify-center items-center">
+                <img id="img-screenshot-preview" src="" alt="Comprobante de Pago" class="max-w-full rounded-lg object-contain">
+            </div>
+            <button onclick="cerrarModalScreenshot()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 rounded-xl transition cursor-pointer">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- 1. PANTALLA DE LOGIN CON CAPTCHA -->
     <div id="screen-login" class="flex-1 flex items-center justify-center p-4">
         <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8 shadow-2xl border border-amber-400/20 space-y-6">
             <div class="text-center space-y-3">
@@ -79,6 +95,18 @@
                     <input type="password" id="login-pass" required placeholder="••••••••" class="w-full bg-black border border-zinc-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-amber-400">
                 </div>
 
+                <!-- DESAFÍO CAPTCHA MATEMÁTICO -->
+                <div class="bg-black/60 p-3 rounded-xl border border-zinc-800 space-y-1">
+                    <label class="block text-[11px] font-bold text-amber-400 flex justify-between items-center">
+                        <span><i class="fa-solid fa-shield-halved mr-1"></i> Verificación Seguridad (Captcha)</span>
+                        <button type="button" onclick="generarCaptcha()" class="text-[10px] text-zinc-400 hover:text-amber-400 underline"><i class="fa-solid fa-rotate-right"></i> Cambiar</button>
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <span id="captcha-question" class="bg-zinc-800 text-amber-400 font-mono font-black px-3 py-1.5 rounded-lg text-xs tracking-widest min-w-[90px] text-center border border-zinc-700">0 + 0 = ?</span>
+                        <input type="number" id="captcha-answer" required placeholder="Resultado" class="flex-1 bg-black border border-zinc-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-amber-400">
+                    </div>
+                </div>
+
                 <button type="submit" class="w-full bg-amber-400 hover:bg-amber-300 text-black font-black py-3 rounded-xl text-xs transition shadow-lg flex justify-center items-center gap-2 uppercase cursor-pointer">
                     Iniciar Sesión
                 </button>
@@ -106,6 +134,7 @@
 
         <!-- PANEL ADMIN -->
         <main id="view-admin" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
+            <!-- Métricas -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
                     <p class="text-xs font-bold text-zinc-400 uppercase">Por Cobrar</p>
@@ -173,23 +202,24 @@
                 </form>
             </div>
 
-            <!-- Emitir Crédito -->
+            <!-- Emitir Crédito con Porcentaje según Nivel de Cliente -->
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
                 <h3 class="text-sm font-black text-white mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-cart-plus text-amber-400"></i> Emitir Crédito / Venta
                 </h3>
                 <form onsubmit="crearCreditoSupabase(event)" class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <select id="cred-cliente" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400"></select>
+                    <select id="cred-cliente" required onchange="actualizarOpcionesInicialSegunCliente()" class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400"></select>
                     <input type="text" id="cred-desc" placeholder="Descripción producto/combo" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
                     <input type="number" step="0.01" id="cred-total" placeholder="Monto Total ($)" required class="bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
                     
                     <div>
-                        <label class="block text-[10px] font-bold text-amber-400 mb-1">Porcentaje de Inicial ($)</label>
+                        <label class="block text-[10px] font-bold text-amber-400 mb-1">Porcentaje de Inicial (%)</label>
                         <select id="cred-inicial-pct" class="w-full bg-black border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-400">
-                            <option value="10">10% de Inicial</option>
-                            <option value="20" selected>20% de Inicial</option>
-                            <option value="30">30% de Inicial</option>
-                            <option value="50">50% de Inicial</option>
+                            <option value="50">50% (Nivel 1 obligatorio)</option>
+                            <option value="40">40% (Nivel 2)</option>
+                            <option value="30">30% (Nivel 3)</option>
+                            <option value="20">20% (Nivel 4)</option>
+                            <option value="10">10% (Nivel 5)</option>
                         </select>
                     </div>
 
@@ -215,10 +245,10 @@
                 </form>
             </div>
 
-            <!-- Tabla de Cuotas -->
+            <!-- Tabla de Cuotas con Referencia Visible y Ver Screenshot -->
             <div class="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
                 <div class="p-4 border-b border-zinc-800 font-black text-xs text-amber-400 uppercase">
-                    Cronograma de Pagos, Multas & Notificaciones WhatsApp
+                    Cronograma de Pagos, Multas & Verificación de Comprobantes
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-zinc-300">
@@ -229,8 +259,9 @@
                                 <th class="p-3">Monto Base</th>
                                 <th class="p-3">Mora ($5)</th>
                                 <th class="p-3">Total Due</th>
-                                <th class="p-3">Estado / Ref</th>
-                                <th class="p-3 text-right">Notificar / Cobrar</th>
+                                <th class="p-3">Estado</th>
+                                <th class="p-3">N° Referencia</th>
+                                <th class="p-3 text-right">Comprobante / Aprobar</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-cuotas-body" class="divide-y divide-zinc-800"></tbody>
@@ -279,17 +310,29 @@
         let currentRole = 'cliente';
         let clienteLogueado = null;
         let listaClientes = [];
+        let listaCreditos = [];
+        let captchaNum1 = 0;
+        let captchaNum2 = 0;
+
+        function generarCaptcha() {
+            captchaNum1 = Math.floor(Math.random() * 10) + 1;
+            captchaNum2 = Math.floor(Math.random() * 10) + 1;
+            document.getElementById('captcha-question').innerText = `${captchaNum1} +${captchaNum2} = ?`;
+            document.getElementById('captcha-answer').value = '';
+        }
+
+        // Generar el primer captcha al cargar
+        window.addEventListener('DOMContentLoaded', generarCaptcha);
 
         function getAdminPass() {
             return localStorage.getItem('vicmon_admin_pass') || '1234';
         }
 
+        // NUEVO ESQUEMA DE NIVELES E INICIALES
         function calcularNivelCliente(montoTotalCompras) {
-            if (montoTotalCompras >= 400) return { nivel: 5, nombre: 'Nivel 5 (Élite)', siguiente: 'Máximo nivel alcanzado' };
-            if (montoTotalCompras >= 300) return { nivel: 4, nombre: 'Nivel 4 (Oro)', siguiente: `Faltan $${(400 - montoTotalCompras).toFixed(2)} para Nivel 5` };
-            if (montoTotalCompras >= 200) return { nivel: 3, nombre: 'Nivel 3 (Plata)', siguiente: `Faltan $${(300 - montoTotalCompras).toFixed(2)} para Nivel 4` };
-            if (montoTotalCompras >= 100) return { nivel: 2, nombre: 'Nivel 2 (Bronce)', siguiente: `Faltan $${(200 - montoTotalCompras).toFixed(2)} para Nivel 3` };
-            return { nivel: 1, nombre: 'Nivel 1 (Básico)', siguiente: `Faltan $${(100 - montoTotalCompras).toFixed(2)} para Nivel 2` };
+            if (montoTotalCompras >= 400) return { nivel: 5, minInicial: 10, nombre: 'Nivel 5 (Élite - 10% Inicial)', siguiente: 'Máximo nivel alcanzado' };
+            if (montoTotalCompras >= 300) return { nivel: 4, minInicial: 20, nombre: 'Nivel 4 (Oro - 20% Inicial)', siguiente: `Faltan $${(400 - montoTotalCompras).toFixed(2)} para Nivel 5` }; if (montoTotalCompras >= 200) return { nivel: 3, minInicial: 30, nombre: 'Nivel 3 (Plata - 30\% Inicial)', siguiente: `Faltan $${(300 - montoTotalCompras).toFixed(2)} para Nivel 4` };
+            if (montoTotalCompras >= 100) return { nivel: 2, minInicial: 40, nombre: 'Nivel 2 (Bronce - 40% Inicial)', siguiente: `Faltan $${(200 - montoTotalCompras).toFixed(2)} para Nivel 3` }; return { nivel: 1, minInicial: 50, nombre: 'Nivel 1 (Básico - 50\% Inicial)', siguiente: `Faltan $${(100 - montoTotalCompras).toFixed(2)} para Nivel 2` };
         }
 
         function setLoginRole(role) {
@@ -320,6 +363,15 @@
 
         async function procesarLogin(e) {
             e.preventDefault();
+            
+            // VALIDACIÓN DE CAPTCHA
+            const captchaUserAnswer = parseInt(document.getElementById('captcha-answer').value);
+            if (captchaUserAnswer !== (captchaNum1 + captchaNum2)) {
+                alert('La respuesta de la prueba de seguridad (Captcha) es incorrecta. Inténtalo de nuevo.');
+                generarCaptcha();
+                return;
+            }
+
             const pass = document.getElementById('login-pass').value;
 
             if (currentRole === 'admin') {
@@ -327,7 +379,8 @@
                 if (email === 'admin@vicmon.com' && pass === getAdminPass()) {
                     iniciarAppAdmin();
                 } else {
-                    alert('Credenciales de administrador incorrectas. Verifica el correo o la clave.');
+                    alert('Credenciales de administrador incorrectas.');
+                    generarCaptcha();
                 }
             } else {
                 const doc = document.getElementById('login-doc').value;
@@ -335,6 +388,7 @@
 
                 if (error || !data) {
                     alert('Cédula o contraseña no válidas.');
+                    generarCaptcha();
                 } else {
                     clienteLogueado = data;
                     if (!data.terms_accepted) {
@@ -360,18 +414,11 @@
             const oldPass = document.getElementById('admin-old-pass').value;
             const newPass = document.getElementById('admin-new-pass').value;
 
-            if (oldPass !== getAdminPass()) {
-                alert('La contraseña actual es incorrecta.');
-                return;
-            }
-
-            if (newPass.length < 4) {
-                alert('La nueva contraseña debe tener al menos 4 caracteres.');
-                return;
-            }
+            if (oldPass !== getAdminPass()) return alert('La contraseña actual es incorrecta.');
+            if (newPass.length < 4) return alert('La nueva contraseña debe tener al menos 4 caracteres.');
 
             localStorage.setItem('vicmon_admin_pass', newPass);
-            alert('¡Contraseña de administrador actualizada con éxito!');
+            alert('¡Contraseña de administrador actualizada!');
             e.target.reset();
         }
 
@@ -398,6 +445,33 @@
             document.getElementById('screen-login').classList.remove('hidden');
             document.getElementById('login-pass').value = '';
             clienteLogueado = null;
+            generarCaptcha();
+        }
+
+        function actualizarOpcionesInicialSegunCliente() {
+            const clienteId = document.getElementById('cred-cliente').value;
+            const totalCompras = (listaCreditos || []).filter(cr => cr.cliente_id === clienteId).reduce((sum, cr) => sum + parseFloat(cr.monto_total), 0);
+            const infoNivel = calcularNivelCliente(totalCompras);
+
+            const selectInicial = document.getElementById('cred-inicial-pct');
+            selectInicial.innerHTML = '';
+
+            const opciones = [
+                { pct: 50, label: '50% de Inicial' },
+                { pct: 40, label: '40% de Inicial' },
+                { pct: 30, label: '30% de Inicial' },
+                { pct: 20, label: '20% de Inicial' },
+                { pct: 10, label: '10% de Inicial' }
+            ];
+
+            opciones.forEach(op => {
+                if (op.pct >= infoNivel.minInicial) {
+                    const opt = document.createElement('option');
+                    opt.value = op.pct;
+                    opt.innerText = `${op.label}${op.pct === infoNivel.minInicial ? '(Mínima permitida para su nivel)' : ''}`;
+                    selectInicial.appendChild(opt);
+                }
+            });
         }
 
         async function cargarDatosAdmin() {
@@ -406,15 +480,17 @@
             const { data: cuotas } = await _supabase.from('cuotas').select('*, clientes(*)');
 
             listaClientes = clientes || [];
+            listaCreditos = creditos || [];
             document.getElementById('stat-clientes').innerText = listaClientes.length;
 
             const tbodyClientes = document.getElementById('tabla-clientes-body');
             const selectClienteCred = document.getElementById('cred-cliente');
 
             selectClienteCred.innerHTML = listaClientes.map(c => `<option value="${c.id}">${c.nombre} (${c.documento})</option>`).join('');
+            actualizarOpcionesInicialSegunCliente();
 
             tbodyClientes.innerHTML = listaClientes.map(c => {
-                const totalCompras = (creditos || []).filter(cr => cr.cliente_id === c.id).reduce((sum, cr) => sum + parseFloat(cr.monto_total), 0);
+                const totalCompras = (listaCreditos || []).filter(cr => cr.cliente_id === c.id).reduce((sum, cr) => sum + parseFloat(cr.monto_total), 0);
                 const infoNivel = calcularNivelCliente(totalCompras);
 
                 return `
@@ -422,9 +498,8 @@
                         <td class="p-3 font-bold text-white">${c.nombre}</td>
                         <td class="p-3 font-mono text-zinc-300">${c.documento} <br><span class="text-[10px] text-amber-400">${c.rif || 'Sin RIF'}</span></td>
                         <td class="p-3">${c.telefono}</td>
-                        <td class="p-3 text-[11px] max-w-[150px] truncate" title="${c.direccion || ''}">${c.direccion || 'No registrada'}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-400 text-black">${infoNivel.nombre}</span></td>
-                        <td class="p-3 font-bold text-amber-400">$${totalCompras.toFixed(2)}</td>
+                        <td class="p-3 text-[11px] max-w-[150px] truncate" title="${c.direccion \vert{}\vert{} ''}">${c.direccion || 'No registrada'}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-400 text-black">${infoNivel.nombre}</span></td> <td class="p-3 font-bold text-amber-400">$${totalCompras.toFixed(2)}</td>
                         <td class="p-3 text-right space-x-1">
                             <button onclick="prepararEdicionCliente('${c.id}', '${c.nombre}', '${c.documento}', '${c.rif || ''}', '${c.telefono}', '${c.direccion || ''}', '${c.limite_credito}', '${c.password}')" class="bg-amber-400/20 text-amber-400 hover:bg-amber-400 hover:text-black px-2 py-1 rounded text-[10px] font-bold">Editar</button>
                             <button onclick="eliminarClienteSupabase('${c.id}', '${c.nombre}')" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white px-2 py-1 rounded text-[10px] font-bold">Eliminar</button>
@@ -441,11 +516,7 @@
                 const fechaVenc = new Date(c.vencimiento);
                 const diasDiferencia = Math.floor((hoy - fechaVenc) / (1000 * 60 * 60 * 24));
                 
-                let mora = 0;
-                if (c.estado === 'Pendiente' && diasDiferencia >= 4) {
-                    mora = 5.00;
-                }
-
+                let mora = (c.estado === 'Pendiente' && diasDiferencia >= 4) ? 5.00 : 0;
                 const montoTotalCuota = parseFloat(c.monto) + mora;
 
                 if (c.estado === 'Pendiente' || c.estado === 'En Revisión') {
@@ -463,20 +534,16 @@
                         <td class="p-3 font-bold text-white">${c.clientes ? c.clientes.nombre : 'N/A'}</td>
                         <td class="p-3 font-extrabold ${esInicial ? 'text-amber-400' : 'text-zinc-400'}">${esInicial ? '⚡ INICIAL' : `Cuota #${c.numero}`}</td>
                         <td class="p-3 font-bold">$${parseFloat(c.monto).toFixed(2)}</td>
-                        <td class="p-3 text-red-400 font-bold">${mora > 0 ? `+$${mora.toFixed(2)}` : '$0.00'}</td>
-                        <td class="p-3 font-black text-amber-400">$${montoTotalCuota.toFixed(2)}</td>
+                        <td class="p-3 text-red-400 font-bold">${mora > 0 ? `+$${mora.toFixed(2)}` : '$0.00'}</td> <td class="p-3 font-black text-amber-400">$${montoTotalCuota.toFixed(2)}</td>
                         <td class="p-3">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.estado === 'Pagado' ? 'bg-emerald-500/20 text-emerald-400' : (c.estado === 'En Revisión' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-400/20 text-amber-400')}">
-                                ${c.estado} ${c.referencia ? `(Ref: ${c.referencia})` : ''}
+                                ${c.estado}
                             </span>
                         </td>
+                        <td class="p-3 font-mono font-bold text-white">${c.referencia ? c.referencia : '<span class="text-zinc-600 font-normal">Sin ref</span>'}</td>
                         <td class="p-3 text-right space-x-1">
-                            <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', 'hoy')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio Hoy">Hoy</button>
-                            <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', '10d')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio 10 días">10d</button>
-                            <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', '12d')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio 12 días">12d</button>
-                            <button onclick="enviarWspNotif('${clienteTel}', '${c.clientes?.nombre}', ${montoTotalCuota}, '${c.vencimiento}', '14d')" class="bg-zinc-800 text-amber-400 px-1.5 py-1 rounded text-[9px]" title="Recordatorio 14 días">14d</button>
-                            
-                            ${c.estado !== 'Pagado' ? `<button onclick="adminAprobarPago('${c.id}')" class="bg-amber-400 text-black px-2 py-1 rounded text-[10px] font-black">Aprobar</button>` : ''}
+                            ${c.screenshot ? `<button onclick="verScreenshot('${c.id}')" class="bg-blue-600/30 text-blue-400 hover:bg-blue-600 hover:text-white px-2 py-1 rounded text-[10px] font-bold"><i class="fa-solid fa-image mr-1"></i>Ver Cap</button>` : ''}
+                            ${c.estado !== 'Pagado' ? `<button onclick="adminAprobarPago('${c.id}', '${c.referencia || ''}')" class="bg-amber-400 hover:bg-amber-300 text-black px-2 py-1 rounded text-[10px] font-black">Aprobar</button>` : ''}
                         </td>
                     </tr>
                 `;
@@ -487,14 +554,18 @@
             document.getElementById('stat-pendientes').innerText = pendientes;
         }
 
-        function enviarWspNotif(tel, nombre, monto, fecha, tipo) {
-            let msg = "";
-            if (tipo === 'hoy') msg = `Hola ${nombre}, te recordamos que hoy vence tu cuota por $${monto.toFixed(2)} en VICMON Store. Por favor realiza tu pago para mantener tu buen historial.`;
-            if (tipo === '10d') msg = `Hola ${nombre}, recordatorio de pago: Tu cuota por $${monto.toFixed(2)} vencerá el ${fecha}. ¡Gracias por preferir VICMON Store!`;
-            if (tipo === '12d') msg = `Hola ${nombre}, faltan pocos días para el vencimiento de tu cuota ($${monto.toFixed(2)} el ${fecha}).`;
-            if (tipo === '14d') msg = `Hola ${nombre}, te notificamos el vencimiento próximo de tu crédito de VICMON Store ($${monto.toFixed(2)}).`;
+        async function verScreenshot(cuotaId) {
+            const { data } = await _supabase.from('cuotas').select('screenshot').eq('id', cuotaId).single();
+            if (data && data.screenshot) {
+                document.getElementById('img-screenshot-preview').src = data.screenshot;
+                document.getElementById('modal-screenshot').classList.remove('hidden');
+            } else {
+                alert('No hay comprobante adjunto para este pago.');
+            }
+        }
 
-            window.open(`https://wa.me/${tel.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+        function cerrarModalScreenshot() {
+            document.getElementById('modal-screenshot').classList.add('hidden');
         }
 
         function prepararEdicionCliente(id, nombre, doc, rif, tel, direccion, limite, pass) {
@@ -595,9 +666,9 @@
             cargarDatosAdmin();
         }
 
-        async function adminAprobarPago(cuotaId) {
-            const ref = prompt("Ingresa el número de referencia del pago (o confirma la existente):");
-            if (ref) {
+        async function adminAprobarPago(cuotaId, refActual) {
+            const ref = prompt("Confirma o ingresa el número de referencia del pago:", refActual);
+            if (ref !== null) {
                 await _supabase.from('cuotas').update({ estado: 'Pagado', referencia: ref }).eq('id', cuotaId);
                 cargarDatosAdmin();
             }
@@ -605,7 +676,22 @@
 
         async function clienteReportarPago(cuotaId) {
             const ref = prompt("Ingresa el número de referencia de tu transferencia/pago:");
-            if (ref) {
+            if (!ref) return;
+
+            const inputImg = document.getElementById(`file-screenshot-${cuotaId}`);
+            let screenshotBase64 = null;
+
+            if (inputImg && inputImg.files && inputImg.files[0]) {
+                const file = inputImg.files[0];
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    screenshotBase64 = e.target.result;
+                    await _supabase.from('cuotas').update({ estado: 'En Revisión', referencia: ref, screenshot: screenshotBase64 }).eq('id', cuotaId);
+                    alert("¡Pago y comprobante reportados con éxito! Estarán 'En Revisión' hasta ser validados.");
+                    cargarDatosCliente();
+                };
+                reader.readAsDataURL(file);
+            } else {
                 await _supabase.from('cuotas').update({ estado: 'En Revisión', referencia: ref }).eq('id', cuotaId);
                 alert("¡Pago reportado! Estará 'En Revisión' hasta que la tienda lo apruebe.");
                 cargarDatosCliente();
@@ -637,23 +723,4 @@
                 const esInicial = c.numero === 0;
 
                 return `
-                    <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center text-xs">
-                        <div>
-                            <p class="font-black ${esInicial ? 'text-amber-400' : 'text-white'}">${esInicial ? '⚡ Pago Inicial' : `Cuota #${c.numero}`}</p>
-                            <p class="text-zinc-400 text-[11px]">Vence: ${c.vencimiento}</p>
-                            ${mora > 0 ? '<p class="text-red-400 font-bold text-[10px]">+ $5.00 mora aplicada</p>' : ''}
-                        </div>
-                        <div class="text-right">
-                            <p class="font-black text-amber-400 text-sm">$${totalCuota.toFixed(2)}</p>
-                            <span class="text-[10px] font-bold block mb-1 ${c.estado === 'Pagado' ? 'text-emerald-400' : (c.estado === 'En Revisión' ? 'text-blue-400' : 'text-amber-400')}">${c.estado}</span>
-                            ${c.estado === 'Pendiente' ? `<button onclick="clienteReportarPago('${c.id}')" class="bg-amber-400 text-black px-2 py-0.5 rounded font-bold text-[10px]">Reportar Pago</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('cli-deuda-monto').innerText = `$${deuda.toFixed(2)}`;
-        }
-    </script>
-</body>
-</html>
+                    <div class="bg-zinc-9
