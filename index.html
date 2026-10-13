@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    <!-- MODAL VISUALIZAR COMPROBANTE / SCREENSHOT DE PAGO -->
+    <!-- MODAL VISUALIZAR COMPROBANTE -->
     <div id="modal-screenshot" class="hidden fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-amber-400 max-w-md w-full rounded-3xl p-6 space-y-4 text-xs text-center">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
@@ -59,24 +59,37 @@
         </div>
     </div>
 
-    <!-- 1. PANTALLA DE LOGIN CON CAPTCHA -->
-    <div id="screen-login" class="flex-1 flex items-center justify-center p-4">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8 shadow-2xl border border-amber-400/20 space-y-6">
-            <div class="text-center space-y-3">
+    <!-- 1. PANTALLA PRINCIPAL DE SELECCIÓN DE PORTAL -->
+    <div id="screen-portal-select" class="flex-1 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8 shadow-2xl border border-amber-400/20 space-y-6 text-center">
+            <div class="space-y-3">
                 <div class="flex justify-center">
                     <img src="LOGO VICMON .jpg" alt="VICMON Store Logo" class="h-20 object-contain drop-shadow-md" onerror="this.onerror=null; this.src='logo.png';">
                 </div>
-                <p class="text-xs text-amber-400 font-semibold tracking-wider uppercase">Créditos & Financiamiento</p>
+                <h1 class="text-xl font-black text-white">Sistema de Financiamiento</h1>
+                <p class="text-xs text-amber-400 font-semibold tracking-wider uppercase">Selecciona el portal de acceso</p>
             </div>
 
-            <!-- Selector de Tipo de Usuario -->
-            <div class="grid grid-cols-2 bg-black p-1.5 rounded-2xl border border-zinc-800 text-xs font-bold text-center">
-                <button type="button" id="tab-login-cli" onclick="setLoginRole('cliente')" class="py-2.5 rounded-xl bg-amber-400 text-black font-black shadow transition-all cursor-pointer">
-                    <i class="fa-solid fa-user mr-1"></i> Soy Cliente
+            <div class="space-y-3 pt-2">
+                <button onclick="mostrarLogin('cliente')" class="w-full bg-amber-400 hover:bg-amber-300 text-black font-black py-3.5 rounded-2xl text-xs transition shadow-lg flex items-center justify-center gap-2 uppercase cursor-pointer">
+                    <i class="fa-solid fa-user text-sm"></i> Portal de Clientes
                 </button>
-                <button type="button" id="tab-login-adm" onclick="setLoginRole('admin')" class="py-2.5 rounded-lg text-zinc-400 hover:text-amber-400 transition-all cursor-pointer font-bold">
-                    <i class="fa-solid fa-user-shield mr-1"></i> Equipo / Admin
+                <button onclick="mostrarLogin('admin')" class="w-full bg-black hover:bg-zinc-800 text-amber-400 border border-amber-400/40 font-black py-3.5 rounded-2xl text-xs transition shadow-lg flex items-center justify-center gap-2 uppercase cursor-pointer">
+                    <i class="fa-solid fa-user-shield text-sm"></i> Portal de Administración
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. PANTALLA DE LOGIN INDEPENDIENTE -->
+    <div id="screen-login" class="hidden flex-1 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8 shadow-2xl border border-amber-400/20 space-y-6">
+            <div class="text-center space-y-3">
+                <div class="flex justify-center">
+                    <img src="LOGO VICMON .jpg" alt="VICMON Store Logo" class="h-16 object-contain drop-shadow-md" onerror="this.onerror=null; this.src='logo.png';">
+                </div>
+                <h2 id="login-title-mode" class="text-lg font-black text-white uppercase">Acceso</h2>
+                <button onclick="volverAlPortalSelect()" class="text-[11px] text-amber-400 hover:underline font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Volver a selección</button>
             </div>
 
             <form onsubmit="procesarLogin(event)" class="space-y-4">
@@ -95,10 +108,10 @@
                     <input type="password" id="login-pass" required placeholder="••••••••" class="w-full bg-black border border-zinc-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-amber-400">
                 </div>
 
-                <!-- DESAFÍO CAPTCHA MATEMÁTICO -->
+                <!-- CAPTCHA -->
                 <div class="bg-black/60 p-3 rounded-xl border border-zinc-800 space-y-1">
                     <label class="block text-[11px] font-bold text-amber-400 flex justify-between items-center">
-                        <span><i class="fa-solid fa-shield-halved mr-1"></i> Verificación Seguridad (Captcha)</span>
+                        <span><i class="fa-solid fa-shield-halved mr-1"></i> Verificación Seguridad</span>
                         <button type="button" onclick="generarCaptcha()" class="text-[10px] text-zinc-400 hover:text-amber-400 underline"><i class="fa-solid fa-rotate-right"></i> Cambiar</button>
                     </label>
                     <div class="flex items-center gap-2">
@@ -108,13 +121,13 @@
                 </div>
 
                 <button type="submit" class="w-full bg-amber-400 hover:bg-amber-300 text-black font-black py-3 rounded-xl text-xs transition shadow-lg flex justify-center items-center gap-2 uppercase cursor-pointer">
-                    Iniciar Sesión
+                    Ingresar al Sistema
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- 2. APLICACIÓN PRINCIPAL -->
+    <!-- 3. APLICACIÓN PRINCIPAL (PROTEGIDA POR ROLES) -->
     <div id="screen-app" class="hidden flex-1 flex flex-col">
         <header class="bg-amber-400 text-black shadow-lg sticky top-0 z-50">
             <div class="max-w-7xl mx-auto px-4 py-2.5 flex justify-between items-center">
@@ -132,9 +145,8 @@
             </div>
         </header>
 
-        <!-- PANEL ADMIN -->
+        <!-- PANEL ADMIN (ESTRICTAMENTE RESTRINGIDO AL ROL ADMIN) -->
         <main id="view-admin" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
-            <!-- Métricas -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
                     <p class="text-xs font-bold text-zinc-400 uppercase">Por Cobrar</p>
@@ -154,7 +166,6 @@
                 </div>
             </div>
 
-            <!-- Tabla Clientes -->
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 space-y-4">
                 <h3 class="text-sm font-black text-white flex items-center gap-2">
                     <i class="fa-solid fa-users text-amber-400"></i> Clientes Registrados & Niveles
@@ -177,7 +188,6 @@
                 </div>
             </div>
 
-            <!-- Registrar / Editar Cliente -->
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
                 <h3 id="form-cli-title" class="text-sm font-black text-white mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-user-plus text-amber-400"></i> Registrar Cliente Nuevo
@@ -202,7 +212,6 @@
                 </form>
             </div>
 
-            <!-- Emitir Crédito con Porcentaje según Nivel de Cliente -->
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
                 <h3 class="text-sm font-black text-white mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-cart-plus text-amber-400"></i> Emitir Crédito / Venta
@@ -245,7 +254,6 @@
                 </form>
             </div>
 
-            <!-- Tabla de Cuotas con Referencia Visible y Ver Screenshot -->
             <div class="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
                 <div class="p-4 border-b border-zinc-800 font-black text-xs text-amber-400 uppercase">
                     Cronograma de Pagos, Multas & Verificación de Comprobantes
@@ -269,7 +277,6 @@
                 </div>
             </div>
 
-            <!-- Seguridades Admin -->
             <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
                 <h3 class="text-sm font-black text-white mb-4 flex items-center gap-2">
                     <i class="fa-solid fa-key text-amber-400"></i> Seguridades de Cuenta Admin
@@ -284,7 +291,7 @@
             </div>
         </main>
 
-        <!-- PORTAL CLIENTE -->
+        <!-- PORTAL CLIENTE (ESTRICTAMENTE RESTRINGIDO AL ROL CLIENTE) -->
         <main id="view-cliente" class="hidden flex-1 max-w-md w-full mx-auto px-4 py-6 space-y-4">
             <div class="bg-zinc-900 text-white rounded-3xl p-6 border border-amber-400/30 shadow-2xl relative">
                 <div class="flex justify-between items-center mb-2">
@@ -321,14 +328,12 @@
             document.getElementById('captcha-answer').value = '';
         }
 
-        // Generar el primer captcha al cargar
         window.addEventListener('DOMContentLoaded', generarCaptcha);
 
         function getAdminPass() {
             return localStorage.getItem('vicmon_admin_pass') || '1234';
         }
 
-        // NUEVO ESQUEMA DE NIVELES E INICIALES
         function calcularNivelCliente(montoTotalCompras) {
             if (montoTotalCompras >= 400) return { nivel: 5, minInicial: 10, nombre: 'Nivel 5 (Élite - 10% Inicial)', siguiente: 'Máximo nivel alcanzado' };
             if (montoTotalCompras >= 300) return { nivel: 4, minInicial: 20, nombre: 'Nivel 4 (Oro - 20% Inicial)', siguiente: `Faltan $${(400 - montoTotalCompras).toFixed(2)} para Nivel 5` };
@@ -337,45 +342,50 @@
             return { nivel: 1, minInicial: 50, nombre: 'Nivel 1 (Básico - 50% Inicial)', siguiente: `Faltan $${(100 - montoTotalCompras).toFixed(2)} para Nivel 2` };
         }
 
-        function setLoginRole(role) {
-            currentRole = role;
-            const btnCli = document.getElementById('tab-login-cli');
-            const btnAdm = document.getElementById('tab-login-adm');
+        function mostrarLogin(rol) {
+            currentRole = rol;
+            document.getElementById('screen-portal-select').classList.add('hidden');
+            document.getElementById('screen-login').classList.remove('hidden');
+
             const fieldDoc = document.getElementById('field-doc');
             const fieldEmail = document.getElementById('field-email');
             const docInput = document.getElementById('login-doc');
             const emailInput = document.getElementById('login-email');
+            const titleMode = document.getElementById('login-title-mode');
 
-            if (role === 'cliente') {
-                btnCli.className = "py-2.5 rounded-xl bg-amber-400 text-black font-black shadow transition-all cursor-pointer";
-                btnAdm.className = "py-2.5 rounded-lg text-zinc-400 hover:text-amber-400 transition-all cursor-pointer font-bold";
+            if (rol === 'cliente') {
+                titleMode.innerText = "Acceso Clientes";
                 fieldDoc.classList.remove('hidden');
                 fieldEmail.classList.add('hidden');
                 docInput.required = true;
                 emailInput.required = false;
             } else {
-                btnAdm.className = "py-2.5 rounded-xl bg-amber-400 text-black font-black shadow transition-all cursor-pointer";
-                btnCli.className = "py-2.5 rounded-lg text-zinc-400 hover:text-amber-400 transition-all cursor-pointer font-bold";
+                titleMode.innerText = "Acceso Administración";
                 fieldEmail.classList.remove('hidden');
                 fieldDoc.classList.add('hidden');
                 emailInput.required = true;
                 docInput.required = false;
             }
+            generarCaptcha();
+        }
+
+        function volverAlPortalSelect() {
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('screen-portal-select').classList.remove('hidden');
         }
 
         async function procesarLogin(e) {
             e.preventDefault();
-            
-            // VALIDACIÓN DE CAPTCHA
             const captchaUserAnswer = parseInt(document.getElementById('captcha-answer').value);
             if (captchaUserAnswer !== (captchaNum1 + captchaNum2)) {
-                alert('La respuesta de la prueba de seguridad (Captcha) es incorrecta. Inténtalo de nuevo.');
+                alert('La respuesta del captcha es incorrecta. Inténtalo de nuevo.');
                 generarCaptcha();
                 return;
             }
 
             const pass = document.getElementById('login-pass').value;
 
+            // BLOQUEO ABSOLUTO DE ROLES
             if (currentRole === 'admin') {
                 const email = document.getElementById('login-email').value;
                 if (email === 'admin@vicmon.com' && pass === getAdminPass()) {
@@ -425,18 +435,36 @@
         }
 
         function iniciarAppAdmin() {
+            // SEGURIDAD EXTRA: Doble validación estricta de rol Admin
+            if (currentRole !== 'admin') {
+                alert('Acceso no autorizado.');
+                cerrarSesion();
+                return;
+            }
+
             document.getElementById('screen-login').classList.add('hidden');
             document.getElementById('screen-app').classList.remove('hidden');
             document.getElementById('user-badge-role').innerText = 'Panel de Administración';
+            
+            // MUESTRA ADMIN Y OCULTA CLIENTE POR COMPLETO
             document.getElementById('view-admin').classList.remove('hidden');
             document.getElementById('view-cliente').classList.add('hidden');
             cargarDatosAdmin();
         }
 
         function iniciarAppCliente() {
+            // SEGURIDAD EXTRA: Doble validación estricta de rol Cliente
+            if (currentRole !== 'cliente' || !clienteLogueado) {
+                alert('Acceso no autorizado.');
+                cerrarSesion();
+                return;
+            }
+
             document.getElementById('screen-login').classList.add('hidden');
             document.getElementById('screen-app').classList.remove('hidden');
             document.getElementById('user-badge-role').innerText = `Cliente: ${clienteLogueado.nombre}`;
+            
+            // MUESTRA CLIENTE Y BLOQUEA / OCULTA ADMIN POR COMPLETO
             document.getElementById('view-cliente').classList.remove('hidden');
             document.getElementById('view-admin').classList.add('hidden');
             cargarDatosCliente();
@@ -444,10 +472,12 @@
 
         function cerrarSesion() {
             document.getElementById('screen-app').classList.add('hidden');
-            document.getElementById('screen-login').classList.remove('hidden');
+            document.getElementById('screen-portal-select').classList.remove('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById('view-cliente').classList.add('hidden');
             document.getElementById('login-pass').value = '';
             clienteLogueado = null;
-            generarCaptcha();
+            currentRole = 'cliente';
         }
 
         function actualizarOpcionesInicialSegunCliente() {
@@ -477,6 +507,8 @@
         }
 
         async function cargarDatosAdmin() {
+            if (currentRole !== 'admin') return; // Bloqueo de seguridad si intentan ejecutarlo
+
             const { data: clientes } = await _supabase.from('clientes').select('*');
             const { data: creditos } = await _supabase.from('creditos').select('*');
             const { data: cuotas } = await _supabase.from('cuotas').select('*, clientes(*)');
@@ -530,7 +562,6 @@
                 }
 
                 const esInicial = c.numero === 0;
-                const clienteTel = c.clientes ? c.clientes.telefono : '';
 
                 return `
                     <tr class="border-b border-zinc-800 hover:bg-zinc-800/50">
@@ -559,6 +590,7 @@
         }
 
         async function verScreenshot(cuotaId) {
+            if (currentRole !== 'admin') return;
             const { data } = await _supabase.from('cuotas').select('screenshot').eq('id', cuotaId).single();
             if (data && data.screenshot) {
                 document.getElementById('img-screenshot-preview').src = data.screenshot;
@@ -573,6 +605,7 @@
         }
 
         function prepararEdicionCliente(id, nombre, doc, rif, tel, direccion, limite, pass) {
+            if (currentRole !== 'admin') return;
             document.getElementById('edit-cli-id').value = id;
             document.getElementById('cli-nombre').value = nombre;
             document.getElementById('cli-doc').value = doc;
@@ -604,6 +637,7 @@
 
         async function guardarClienteSupabase(e) {
             e.preventDefault();
+            if (currentRole !== 'admin') return;
             const editId = document.getElementById('edit-cli-id').value;
 
             const datos = {
@@ -629,6 +663,7 @@
         }
 
         async function eliminarClienteSupabase(clienteId, nombre) {
+            if (currentRole !== 'admin') return;
             if (confirm(`¿Deseas eliminar a "${nombre}"?`)) {
                 await _supabase.from('clientes').delete().eq('id', clienteId);
                 cargarDatosAdmin();
@@ -637,6 +672,7 @@
 
         async function crearCreditoSupabase(e) {
             e.preventDefault();
+            if (currentRole !== 'admin') return;
             const clienteId = document.getElementById('cred-cliente').value;
             const desc = document.getElementById('cred-desc').value;
             const total = parseFloat(document.getElementById('cred-total').value);
@@ -671,6 +707,7 @@
         }
 
         async function adminAprobarPago(cuotaId, refActual) {
+            if (currentRole !== 'admin') return;
             const ref = prompt("Confirma o ingresa el número de referencia del pago:", refActual);
             if (ref !== null) {
                 await _supabase.from('cuotas').update({ estado: 'Pagado', referencia: ref }).eq('id', cuotaId);
@@ -679,6 +716,7 @@
         }
 
         async function clienteReportarPago(cuotaId) {
+            if (currentRole !== 'cliente') return;
             const ref = prompt("Ingresa el número de referencia de tu transferencia/pago:");
             if (!ref) return;
 
@@ -691,18 +729,20 @@
                 reader.onload = async function(e) {
                     screenshotBase64 = e.target.result;
                     await _supabase.from('cuotas').update({ estado: 'En Revisión', referencia: ref, screenshot: screenshotBase64 }).eq('id', cuotaId);
-                    alert("¡Pago y comprobante reportados con éxito! Estarán 'En Revisión' hasta ser validados.");
+                    alert("¡Pago y comprobante reportados con éxito!");
                     cargarDatosCliente();
                 };
                 reader.readAsDataURL(file);
             } else {
                 await _supabase.from('cuotas').update({ estado: 'En Revisión', referencia: ref }).eq('id', cuotaId);
-                alert("¡Pago reportado! Estará 'En Revisión' hasta que la tienda lo apruebe.");
+                alert("¡Pago reportado!");
                 cargarDatosCliente();
             }
         }
 
         async function cargarDatosCliente() {
+            if (currentRole !== 'cliente' || !clienteLogueado) return;
+
             const { data: cuotas } = await _supabase.from('cuotas').select('*').eq('cliente_id', clienteLogueado.id);
             const { data: creditos } = await _supabase.from('creditos').select('*').eq('cliente_id', clienteLogueado.id);
 
