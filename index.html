@@ -317,7 +317,7 @@
         function generarCaptcha() {
             captchaNum1 = Math.floor(Math.random() * 10) + 1;
             captchaNum2 = Math.floor(Math.random() * 10) + 1;
-            document.getElementById('captcha-question').innerText = `${captchaNum1} +${captchaNum2} = ?`;
+            document.getElementById('captcha-question').innerText = `${captchaNum1} + ${captchaNum2} = ?`;
             document.getElementById('captcha-answer').value = '';
         }
 
@@ -331,8 +331,10 @@
         // NUEVO ESQUEMA DE NIVELES E INICIALES
         function calcularNivelCliente(montoTotalCompras) {
             if (montoTotalCompras >= 400) return { nivel: 5, minInicial: 10, nombre: 'Nivel 5 (Élite - 10% Inicial)', siguiente: 'Máximo nivel alcanzado' };
-            if (montoTotalCompras >= 300) return { nivel: 4, minInicial: 20, nombre: 'Nivel 4 (Oro - 20% Inicial)', siguiente: `Faltan $${(400 - montoTotalCompras).toFixed(2)} para Nivel 5` }; if (montoTotalCompras >= 200) return { nivel: 3, minInicial: 30, nombre: 'Nivel 3 (Plata - 30\% Inicial)', siguiente: `Faltan $${(300 - montoTotalCompras).toFixed(2)} para Nivel 4` };
-            if (montoTotalCompras >= 100) return { nivel: 2, minInicial: 40, nombre: 'Nivel 2 (Bronce - 40% Inicial)', siguiente: `Faltan $${(200 - montoTotalCompras).toFixed(2)} para Nivel 3` }; return { nivel: 1, minInicial: 50, nombre: 'Nivel 1 (Básico - 50\% Inicial)', siguiente: `Faltan $${(100 - montoTotalCompras).toFixed(2)} para Nivel 2` };
+            if (montoTotalCompras >= 300) return { nivel: 4, minInicial: 20, nombre: 'Nivel 4 (Oro - 20% Inicial)', siguiente: `Faltan $${(400 - montoTotalCompras).toFixed(2)} para Nivel 5` };
+            if (montoTotalCompras >= 200) return { nivel: 3, minInicial: 30, nombre: 'Nivel 3 (Plata - 30% Inicial)', siguiente: `Faltan $${(300 - montoTotalCompras).toFixed(2)} para Nivel 4` };
+            if (montoTotalCompras >= 100) return { nivel: 2, minInicial: 40, nombre: 'Nivel 2 (Bronce - 40% Inicial)', siguiente: `Faltan $${(200 - montoTotalCompras).toFixed(2)} para Nivel 3` };
+            return { nivel: 1, minInicial: 50, nombre: 'Nivel 1 (Básico - 50% Inicial)', siguiente: `Faltan $${(100 - montoTotalCompras).toFixed(2)} para Nivel 2` };
         }
 
         function setLoginRole(role) {
@@ -468,7 +470,7 @@
                 if (op.pct >= infoNivel.minInicial) {
                     const opt = document.createElement('option');
                     opt.value = op.pct;
-                    opt.innerText = `${op.label}${op.pct === infoNivel.minInicial ? '(Mínima permitida para su nivel)' : ''}`;
+                    opt.innerText = `${op.label} ${op.pct === infoNivel.minInicial ? '(Mínima permitida para su nivel)' : ''}`;
                     selectInicial.appendChild(opt);
                 }
             });
@@ -498,8 +500,9 @@
                         <td class="p-3 font-bold text-white">${c.nombre}</td>
                         <td class="p-3 font-mono text-zinc-300">${c.documento} <br><span class="text-[10px] text-amber-400">${c.rif || 'Sin RIF'}</span></td>
                         <td class="p-3">${c.telefono}</td>
-                        <td class="p-3 text-[11px] max-w-[150px] truncate" title="${c.direccion \vert{}\vert{} ''}">${c.direccion || 'No registrada'}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-400 text-black">${infoNivel.nombre}</span></td> <td class="p-3 font-bold text-amber-400">$${totalCompras.toFixed(2)}</td>
+                        <td class="p-3 text-[11px] max-w-[150px] truncate" title="${c.direccion || ''}">${c.direccion || 'No registrada'}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-400 text-black">${infoNivel.nombre}</span></td>
+                        <td class="p-3 font-bold text-amber-400">$${totalCompras.toFixed(2)}</td>
                         <td class="p-3 text-right space-x-1">
                             <button onclick="prepararEdicionCliente('${c.id}', '${c.nombre}', '${c.documento}', '${c.rif || ''}', '${c.telefono}', '${c.direccion || ''}', '${c.limite_credito}', '${c.password}')" class="bg-amber-400/20 text-amber-400 hover:bg-amber-400 hover:text-black px-2 py-1 rounded text-[10px] font-bold">Editar</button>
                             <button onclick="eliminarClienteSupabase('${c.id}', '${c.nombre}')" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white px-2 py-1 rounded text-[10px] font-bold">Eliminar</button>
@@ -534,7 +537,8 @@
                         <td class="p-3 font-bold text-white">${c.clientes ? c.clientes.nombre : 'N/A'}</td>
                         <td class="p-3 font-extrabold ${esInicial ? 'text-amber-400' : 'text-zinc-400'}">${esInicial ? '⚡ INICIAL' : `Cuota #${c.numero}`}</td>
                         <td class="p-3 font-bold">$${parseFloat(c.monto).toFixed(2)}</td>
-                        <td class="p-3 text-red-400 font-bold">${mora > 0 ? `+$${mora.toFixed(2)}` : '$0.00'}</td> <td class="p-3 font-black text-amber-400">$${montoTotalCuota.toFixed(2)}</td>
+                        <td class="p-3 text-red-400 font-bold">${mora > 0 ? `+$${mora.toFixed(2)}` : '$0.00'}</td>
+                        <td class="p-3 font-black text-amber-400">$${montoTotalCuota.toFixed(2)}</td>
                         <td class="p-3">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${c.estado === 'Pagado' ? 'bg-emerald-500/20 text-emerald-400' : (c.estado === 'En Revisión' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-400/20 text-amber-400')}">
                                 ${c.estado}
@@ -723,4 +727,36 @@
                 const esInicial = c.numero === 0;
 
                 return `
-                    <div class="bg-zinc-9
+                    <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-3 text-xs">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-black ${esInicial ? 'text-amber-400' : 'text-white'}">${esInicial ? '⚡ Pago Inicial' : `Cuota #${c.numero}`}</p>
+                                <p class="text-zinc-400 text-[11px]">Vence: ${c.vencimiento}</p>
+                                ${mora > 0 ? '<p class="text-red-400 font-bold text-[10px]">+ $5.00 mora aplicada</p>' : ''}
+                            </div>
+                            <div class="text-right">
+                                <p class="font-black text-amber-400 text-sm">$${totalCuota.toFixed(2)}</p>
+                                <span class="text-[10px] font-bold block ${c.estado === 'Pagado' ? 'text-emerald-400' : (c.estado === 'En Revisión' ? 'text-blue-400' : 'text-amber-400')}">${c.estado}</span>
+                            </div>
+                        </div>
+
+                        ${c.estado === 'Pendiente' ? `
+                            <div class="bg-black/50 p-2.5 rounded-xl border border-zinc-800 space-y-2">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-zinc-400 mb-1"><i class="fa-solid fa-paperclip mr-1"></i> Adjuntar Captura / Screenshot del Comprobante (Opcional):</label>
+                                    <input type="file" id="file-screenshot-${c.id}" accept="image/*" class="text-[10px] text-zinc-400 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-amber-400 file:text-black">
+                                </div>
+                                <button onclick="clienteReportarPago('${c.id}')" class="w-full bg-amber-400 text-black py-1.5 rounded-lg font-black text-xs cursor-pointer">
+                                    Reportar Pago
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cli-deuda-monto').innerText = `$${deuda.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
